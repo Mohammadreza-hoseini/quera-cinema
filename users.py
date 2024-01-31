@@ -101,13 +101,36 @@ class Users:
                                      self.validate_password(password), '2024-01-20', '1', '2024-01-20', 'user')
         )
         connection.commit()
+        print('registered complete')
+
+    """this function for login user"""
+
+    def login(self, user_name: str, password: str):
+        if user_name == '' or user_name is None:
+            print('enter your username')
+        elif password == '' or password is None:
+            print('enter your password')
+        cursor.execute(
+            f"SELECT * FROM User1 where username='{user_name}' and"
+            f" password='{self.validate_password(password)}'")
+        results = cursor.fetchall()
+        if results:
+            print('you are logged in')
+        else:
+            print('username or password is wrong')
 
 
 user_manager = Users()
 
-username = input("Enter your username: ")
-email = input("Enter your email: ")
-phone_number = input("Enter your phone number: ")
-password = input("Enter your password: ")
-birth_date = input("Enter your birth_date with this format 0000-00-00: ")
-user_manager.register(username, email, phone_number, password, birth_date)
+chose_login_or_register = int(input("For register enter 1 and for login enter 2: "))
+if chose_login_or_register == 1:
+    username = input("Enter your username: ")
+    email = input("Enter your email: ")
+    phone_number = input("Enter your phone number: ")
+    password = input("Enter your password: ")
+    birth_date = input("Enter your birth_date with this format 0000-00-00: ")
+    user_manager.register(username, email, phone_number, password, birth_date)
+elif chose_login_or_register == 2:
+    username = input("Enter your username: ")
+    password = input("Enter your password: ")
+    user_manager.login(username, password)
