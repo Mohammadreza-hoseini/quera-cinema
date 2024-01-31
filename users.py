@@ -51,7 +51,7 @@ class Users:
 
 user_manager = Users()
 
-username = input("Enter your username: ")
-email = input("Enter your email: ")
-phone_number = input("Enter your phone number: ")
+username = input("Enter your username:  ")
+email = input("Enter your email:  ")
+phone_number = input("Enter your phone number:  ")
 user_manager.register(username, email, phone_number)
