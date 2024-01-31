@@ -10,3 +10,5 @@ try:
     )
 except mysql.connector.Error as err:
     raise Exception("Connection Error")
+finally:
+    connection.close()
