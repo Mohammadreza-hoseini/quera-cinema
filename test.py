@@ -1,7 +1,7 @@
-from connection import ConnectionManager
+from connection import connection
 
-with ConnectionManager() as conn:
-    conn.execute("SELECT * FROM User")
-    results = conn.fetchall()
-    for row in results:
-        print(row)
+cursor = connection.cursor()
+cursor.execute("SELECT * FROM User")
+results = cursor.fetchall()
+for row in results:
+    print(row)
