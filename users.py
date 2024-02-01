@@ -17,7 +17,7 @@ class Users:
         if user_name == '' or user_name is None:
             print('enter username')
         # username must be unique,query to db for check it
-        cursor.execute(f"SELECT * FROM User1 where username='{user_name}'")
+        cursor.execute(f"SELECT * FROM User where username='{user_name}'")
         results = cursor.fetchall()
         if results:
             print('username exist')
@@ -34,7 +34,7 @@ class Users:
         if user_email == '' or user_email is None:
             print('enter email')
         # email must be unique, query to db for check it
-        cursor.execute(f"SELECT * FROM User1 where email='{user_email}'")
+        cursor.execute(f"SELECT * FROM User where email='{user_email}'")
         results = cursor.fetchall()
         if results:
             print('email exist')
@@ -86,7 +86,7 @@ class Users:
             return False
         cursor.execute(
             '''
-            INSERT INTO User1(uuid, avatar, username, birth_date,
+            INSERT INTO User(id, avatar, username, birth_date,
                               phone_number, email, password,
                               register_date, last_login,
                               subscription, bought_subscription_date,
@@ -98,7 +98,7 @@ class Users:
                               %s, %s, %s
                               )''', ('avatar_url', user_name, birth_date,
                                      phone_number, user_email,
-                                     self.validate_password(password), '2024-01-20', '1', '2024-01-20', 'user')
+                                     self.validate_password(password), '2024-01-20', '2', '2024-01-20', 'user')
         )
         connection.commit()
         print('registered complete')
@@ -111,7 +111,7 @@ class Users:
         elif password == '' or password is None:
             print('enter your password')
         cursor.execute(
-            f"SELECT * FROM User1 where username='{user_name}' and"
+            f"SELECT * FROM User where username='{user_name}' and"
             f" password='{self.validate_password(password)}'")
         results = cursor.fetchall()
         if results:
