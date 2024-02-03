@@ -120,18 +120,22 @@ class Users:
         else:
             print('username or password is wrong')
 
+    """ this function for change username """
+
     @staticmethod
     @login_decorator
-    def change_user_name(user_name):
+    def change_user_name(user_name) -> bool:
         new_user_name = input('Enter new username: ')
         cursor.execute(
             f"UPDATE User SET username='{new_user_name}' where username='{user_name}'"
         )
         connection.commit()
 
+    """ this function for change username """
+
     @staticmethod
     @login_decorator
-    def change_password(user_name):
+    def change_password(user_name: str) -> bool:
         new_password = input('Enter new password: ')
         confirm_password = input('Enter password again: ')
         if new_password != confirm_password:
