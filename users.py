@@ -1,7 +1,7 @@
 import re
 import hashlib
 from connection import connection
-from decorator import login_decorator
+from decorator import user_login_decorator
 
 cursor = connection.cursor()
 
@@ -123,7 +123,7 @@ class Users:
     """ this function for change username """
 
     @staticmethod
-    @login_decorator
+    @user_login_decorator
     def change_user_name(user_name) -> bool:
         new_user_name = input('Enter new username: ')
         cursor.execute(
@@ -134,7 +134,7 @@ class Users:
     """ this function for change username """
 
     @staticmethod
-    @login_decorator
+    @user_login_decorator
     def change_password(user_name: str) -> bool:
         new_password = input('Enter new password: ')
         confirm_password = input('Enter password again: ')
@@ -150,20 +150,23 @@ class Users:
 
 user_manager = Users()
 
-chose_login_or_register = int(
-    input("For register enter 1: \nFor login enter 2: \nFor change username enter 3: \nFor change password enter 4:"))
-if chose_login_or_register == 1:
-    username = input("Enter your username: ")
-    email = input("Enter your email: ")
-    phone_number = input("Enter your phone number: ")
-    password = input("Enter your password: ")
-    birth_date = input("Enter your birth_date with this format 0000-00-00: ")
-    user_manager.register(username, email, phone_number, password, birth_date)
-elif chose_login_or_register == 2:
-    username = input("Enter your username: ")
-    password = input("Enter your password: ")
-    user_manager.login(username, password)
-elif chose_login_or_register == 3:
-    user_manager.change_user_name()
-elif chose_login_or_register == 4:
-    user_manager.change_password()
+if __name__ == "__main()__":
+    main()
+    chose_login_or_register = int(
+        input(
+            "For register enter 1: \nFor login enter 2: \nFor change username enter 3: \nFor change password enter 4:"))
+    if chose_login_or_register == 1:
+        username = input("Enter your username: ")
+        email = input("Enter your email: ")
+        phone_number = input("Enter your phone number: ")
+        password = input("Enter your password: ")
+        birth_date = input("Enter your birth_date with this format 0000-00-00: ")
+        user_manager.register(username, email, phone_number, password, birth_date)
+    elif chose_login_or_register == 2:
+        username = input("Enter your username: ")
+        password = input("Enter your password: ")
+        user_manager.login(username, password)
+    elif chose_login_or_register == 3:
+        user_manager.change_user_name()
+    elif chose_login_or_register == 4:
+        user_manager.change_password()
