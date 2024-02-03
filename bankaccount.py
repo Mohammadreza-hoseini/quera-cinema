@@ -12,71 +12,146 @@
 #   // constraints: withdrawal <= amount && transfer <= amount
 
 import hashlib
+import random
 import re
 from typing import Union
 
 from connection import connection
+from BA_login_decorator import user_login_decorator, BA_login_decorator
+
+cursor = connection.cursor()
 
 
 class BankAccount:
     def __init__(self):
         pass
 
-    # should BankAccount table have separate password  #QUESTION:
-    def login(self):
-        pass
+    # def login(self):
+    #     pass
 
-    def __charge_wallet(self, transaction_amount):
-        self.amount -= transaction_amount
-        # charge wallet#TODO:
-        pass
+    @staticmethod
+    def bank_account_balance(card_number: int) -> float:
+        """_summary_
+        returns current amount of money in specified card_number
+        """
+        cursor.execute(
+            f"SELECT amount FROM BankAccount WHERE card_number = {card_number}"
+        )
 
-    def __withdrawal(self, transaction_amount):
+        current_amount = float(cursor.fetchone()[0])
+        return current_amount
+
+    @staticmethod
+    @user_login_decorator  # login #TODO
+    def __charge_wallet(
+        cls, user_id: str, card_number: int, transaction_amount: float
+    ) -> None:
+        """_summary_
+        Charge wallet with card_number
+        """
+
+        current_amount = cls.bank_account_balance(card_number)
+        updated_amount = current_amount - transaction_amount
+        cursor.execute(
+            f"UPDATE BankAccount SET amount = {updated_amount} WHERE card_number = {card_number}"
+        )
+
+        # get current_wallet_amount #TODO
+        # updated_wallet_amount = transaction_amount + current_wallet_amount
+        # #BUG
+        cursor.execute(
+            f"UPDATE Wallet SET amount = {transaction_amount} WHERE user_id = {user_id}"
+        )
+        connection.commit()
+
+    @classmethod
+    @user_login_decorator  # for user login #TODO
+    def __withdrawal(cls, card_number: int, transaction_amount: float) -> None:
+        """_summary_
+        Subtract money from account based on user subscription
+        """
         # check user subscription #TODO:
         discount = 0
 
         self.amount -= transaction_amount
         # log #LOG
 
-    def __deposit(self, transaction_amount):
-        self.amount += transaction_amount
-
-    def __transfer(self, transaction_amount):
-        final_bank_account_id = input(
-            "Enter bank_account_id you want to transfer into: "
+    @classmethod
+    def __deposit(cls, card_number: int, transaction_amount: float) -> float:
+        """_summary_
+        add money to account
+        """
+        current_amount = cls.bank_account_balance(card_number)
+        updated_amount = current_amount + transaction_amount
+        cursor.execute(
+            f"UPDATE BankAccount SET amount = {updated_amount} WHERE card_number = {card_number}"
         )
+        connection.commit()
+
+    @classmethod
+    def __transfer(
+        cls, card_number: int, transaction_amount: float, card_number2: int
+    ) -> None:
+        """_summary_
+        Transfer money from one account to another account
+        """
+
         # check if bank_account_id exists #TODO
         # add amount to final_bank_account
 
-        self.amount -= transaction_amount
+        # subtract from card_number1
+        current_amount_account1 = cls.bank_account_balance(card_number)
+        updated_amount_account1 = current_amount_account1 - transaction_amount
+        cursor.execute(
+            f"UPDATE BankAccount SET amount = {updated_amount_account1} WHERE card_number = {card_number}"
+        )
+
+        # add to card_number2
+        current_amount_account2 = cls.bank_account_balance(card_number2)
+        updated_amount_account2 = current_amount_account2 + transaction_amount
+        cursor.execute(
+            f"UPDATE BankAccount SET amount = {updated_amount_account2} WHERE card_number = {card_number2}"
+        )
+
+        connection.commit()
 
     # transaction table? #TODO
+    @classmethod
+    @BA_login_decorator
     def commit_transaction(
-        self, user_id: str, transaction_type: int, transaction_amount: float
+        cls,
+        user_id: str,
+        card_number: int,
+        transaction_type: int,
+        transaction_amount: float,
+        card_number2: int = -1,
     ) -> None:
-        """
+        """_summary_
         transaction_type:  1: withdrawal | 2: transfer to another account | 3: charge wallet | 4: deposit
         """
 
         if transaction_type in [1, 2, 3]:
-            valid = self.validate_transaction(transaction_amount)
+            current_amount = cls.bank_account_balance(card_number)
+            valid = current_amount >= transaction_amount
             if valid:
-                transaction_func_dict = {
-                    1: self.__withdrawal,
-                    2: self.__transfer,
-                    3: self.__charge_wallet,
-                }
-                transaction_func_dict[transaction_type](transaction_amount)
+                if transaction_type == 1:
+                    cls.__withdrawal(card_number, transaction_amount)
+                if transaction_type == 2:
+                    if card_number2 == -1:
+                        print("Second_card_number not giver\n")
+                    else:
+                        print("JJJJJJJJJ")
+                        print(card_number, transaction_amount, card_number2)
+                        cls.__transfer(card_number, transaction_amount, card_number2)
+                if transaction_type == 3:
+                    cls.__charge_wallet(user_id, card_number, transaction_amount)
+                print("Successful transactrion\n")
                 # Database log #TODO: LOG
             else:
-                self.__deposit(transaction_amount)
-
-    # DONE
-    def validate_transaction(self, transaction_amount: float) -> bool:
-        """
-        Check transaction for withdrawal, transfer and wallet charge
-        """
-        return self.amount >= transaction_amount
+                print("Invalid transaction\n")
+        else:
+            cls.__deposit(card_number, transaction_amount)
+            print("Successful transactrion\n")
 
     # DONE
     @staticmethod
@@ -106,28 +181,53 @@ class BankAccount:
     def create_account(
         cls, user_id: str, initial_amount: float, cvv2: int, password: str
     ) -> None:
+        """
+        Create bank account
+        """
         # check user_id #TODO
 
         # check password, cvv2 format #TODO
 
         # uuid #TODO
+        valid = 1  # should be changed
         if valid:
-            cursor = connection.cursor()
-            hashed_pass = self.validate_credential(password)
+            hashed_pass = cls.validate_credential(password)
+            card_number = random.randint(int(1e15), int(1e16))  # possible #BUG?
             cursor.execute(
                 """
-                INSERT INTO BankAccount(id, user_id, amount, cvv2, created_at, password)
-                VALUES ( uuid(), %s, %s, %s, current_timestamp, %s)""",
-                (user_id, initial_amount, cvv2, hashed_pass),
-            )
-            # cls( , user_id, initial_amount, cvv2, password)
+                INSERT INTO BankAccount
+                VALUES ( uuid(), %s, %s, %s, current_timestamp, %s, %s)""",
+                (user_id, initial_amount, cvv2, hashed_pass, card_number),
+            )  # initial amount is not stored as float #BUG:
+            connection.commit()
+            print(f"Bank_account created\n")
 
-        pass
+        else:
+            print("Invalid input\n")
 
     def __str__(self):
         pass
 
 
 ############## test:
+bk1 = BankAccount()
 
-new_bank_acccount = BankAccount.create_account("123231", 102.5, 342, "aA1#@fjskldfsjlk")
+# new_bank_acccount = bk1.create_account(
+#     "c599b937-c273-11ee-9027-0242ac150202", 33, 342, "abbasali@34"
+# )
+
+# bk1.commit_transaction(
+#     user_id="c599b937-c273-11ee-9027-0242ac150202",
+#     card_number=7557812553883616,
+#     transaction_type=4,
+#     transaction_amount=100,
+# )
+
+
+bk1.commit_transaction(
+    user_id="c599b937-c273-11ee-9027-0242ac150202",
+    card_number=7557812553883616,
+    transaction_type=2,
+    transaction_amount=10,
+    card_number2=7939441481282623,
+)
