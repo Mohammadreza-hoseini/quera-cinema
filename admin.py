@@ -45,6 +45,7 @@ class Admin:
         return True
 
     """ admin add theater and sit """
+
     @staticmethod
     @admin_login_decorator
     def add_theater(username: str):
@@ -52,10 +53,51 @@ class Admin:
         create_uuid = uuid.uuid4()
         cursor.execute(f"INSERT INTO Theater (id, capacity, average_rate) VALUES ('{create_uuid}', '{capacity}', -1)")
         connection.commit()
-        for item in range(1, int(capacity)+1):
+        for item in range(1, int(capacity) + 1):
             cursor.execute(f"INSERT INTO Sit (id, theater_id, status) VALUES (uuid(), '{create_uuid}', '0')")
             connection.commit()
         print('insert complete')
+
+    @staticmethod
+    def add_movie(name, on_screen_count, age_limit, price):
+        if name == '' or name is None:
+            print('Enter movie name')
+        elif on_screen_count == '' or on_screen_count is None:
+            print('Enter screen count')
+        elif age_limit == '' or age_limit is None:
+            print('Enter age limit')
+        elif price == '' or price is None:
+            print('Enter price')
+        cursor.execute(
+            '''
+            INSERT INTO Movie(id, name, average_rate, on_screen_count,
+                              age_limit, price)
+                              VALUES (
+                              uuid(), %s, %s,
+                              %s, %s,
+                              %s)''', (name, '-1', on_screen_count,
+                                       age_limit, price)
+        )
+        connection.commit()
+        print('movie registered complete')
+
+    @staticmethod
+    def add_schedule(movie_id, theater_id, on_screen_time):
+        if movie_id == '' or movie_id is None:
+            print('Enter movie_id')
+        elif theater_id == '' or theater_id is None:
+            print('Enter theater_id')
+        elif on_screen_time == '' or on_screen_time is None:
+            print('Enter on_screen_time')
+        cursor.execute(
+            '''
+            INSERT INTO Schedule(id, movie_id, theater_id, on_screen_time)
+                              VALUES (
+                              uuid(), %s, %s,
+                              %s)''', (movie_id, theater_id, on_screen_time)
+        )
+        connection.commit()
+        print('schedule registered complete')
 
 
 admin_manager = Admin()
@@ -65,6 +107,7 @@ admin_manager = Admin()
 # birth_date = input("Enter your birth_date with this format 0000-00-00: ")
 # password = input("Enter your password")
 # admin_manager.register(admin_name, email, phone_number, password, birth_date)
-admin_manager.add_theater()
-for item in range(1, 30+1):
-    ...
+# admin_manager.add_theater()
+# admin_manager.add_movie('harry pater', 3, 18, 85000)
+admin_manager.add_schedule('a523d397-c33f-11ee-9027-0242ac150202', '41ddc2d2-6613-4a53-96ba-97348496d3b7',
+                           '2024-02-25 15:30:30')
