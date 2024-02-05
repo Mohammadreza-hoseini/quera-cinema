@@ -56,7 +56,9 @@ class Users:
 
     @staticmethod
     def validate_phone_number(phone_number: str) -> bool:
-        pattern = re.compile(r"^09\d{9}$")
+        if phone_number is None:
+            return True
+        pattern = re.compile(r'^09\d{9}$')
         result = bool(pattern.match(phone_number))
         if result is False:
             return -1
@@ -219,13 +221,18 @@ user_manager = Users()
 #     elif chose_login_or_register == 4:
 #         user_manager.change_password()
 
+
+# if __name__ == "__main()__":
+#     main()
 while True:
     # username = input("Enter your username: ")
     # email = input("Enter your email: ")
     # phone_number = input("Enter your phone number: ")
     # password = input("Enter your password: ")
     # birth_date = input("Enter your birth_date with this format 0000-00-00: ")
-    chose_login_or_register = int(input("For register enter 1: \nFor login enter 2: "))
+    chose_login_or_register = int(
+        input(
+            "For register enter 1: \nFor login enter 2: "))
     if chose_login_or_register == 1:
         user_manager.register()
     elif chose_login_or_register == 2:
