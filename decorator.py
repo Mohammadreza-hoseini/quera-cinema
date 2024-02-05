@@ -8,6 +8,7 @@ sys.path.insert(0, os.getenv("RootDirectory"))
 from db_connection.connection import connection
 import hashlib
 
+
 cursor = connection.cursor()
 
 
