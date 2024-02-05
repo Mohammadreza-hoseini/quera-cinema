@@ -10,7 +10,8 @@ import uuid
 
 from db_connection.connection import connection
 from users import Users
-from decorator import admin_login_decorator
+
+# from decorator import admin_login_decorator
 
 cursor = connection.cursor()
 
@@ -20,11 +21,9 @@ class Admin:
     def __init__(self):
         pass
 
-    """ register new admin """
-
     @staticmethod
     def register() -> None:
-
+        """ register new admin """
         validate_username_dict = {-1: 'enter username', -2: 'username is invalid', -3: 'username exist'}
         username = input("Enter your username: ")
         user_validation = Users.validate_user_name(username)
@@ -56,37 +55,30 @@ class Admin:
             password = input("Enter your password: ")
             password_validation = Users.validate_password(password)
         birth_date = input("Enter your birth_date with this format 0000-00-00: ")
+        id = uuid.uuid4()
         cursor.execute(
-            '''
-            INSERT INTO User(id, avatar, username, birth_date,
-                              phone_number, email, password,
-                              register_date, last_login,
-                              subscription, bought_subscription_date,
-                              role, logged_in)
-                              VALUES (
-                              uuid(), %s, %s,
-                              %s, %s,
-                              %s, %s, current_timestamp, %s,
-                              %s, %s, %s, %s
-                              )''', ('avatar_url', username, birth_date,
-                                     phone_number, user_email,
-                                     Users.validate_password(password), '2024-01-20', '2', '2024-01-20', 'admin', '1')
-        )
+            f"INSERT INTO User(id, avatar, username, birth_date, phone_number, email, password, register_date,"
+            f" last_login, subscription, bought_subscription_date, role, logged_in) VALUES( '{id}', 'avatar_url',"
+            f" '{username}', '{birth_date}', '{phone_number}', '{user_email}', '{Users.validate_password(password)}',"
+            f" current_timestamp, '2024-01-20', '2', '2024-01-20', 'admin', '1')")
+
         connection.commit()
         print('admin registered')
-        select_action = int(input("For add theater enter 1: \nFor add movie enter 2: \nFor add schedule enter 3: "))
+        select_action = int(input(
+            "For add theater enter 1: \nFor add movie enter 2: \nFor add schedule enter 3: \nFor logout enter 4: "))
         if select_action == 1:
             admin_manager.add_theater()
         elif select_action == 2:
             admin_manager.add_movie()
         elif select_action == 3:
             admin_manager.add_schedule()
-
-    """ admin add theater and sit """
+        elif select_action == 4:
+            admin_manager.logout(id)
 
     @staticmethod
-    @admin_login_decorator
-    def add_theater(username: str):
+    # @admin_login_decorator
+    def add_theater() -> None:
+        """ admin add theater and sit """
         capacity = input('Enter capacity: ')
         while capacity == '' or capacity is None:
             capacity = input('Enter capacity: ')
@@ -97,16 +89,20 @@ class Admin:
             cursor.execute(f"INSERT INTO Sit (id, theater_id, status) VALUES (uuid(), '{create_uuid}', '0')")
             connection.commit()
         print('theater added')
-        select_action = int(input("For add theater enter 1: \nFor add movie enter 2: \nFor add schedule enter 3: "))
+        select_action = int(input(
+            "For add theater enter 1: \nFor add movie enter 2: \nFor add schedule enter 3: \nFor logout enter 4: "))
         if select_action == 1:
             admin_manager.add_theater()
         elif select_action == 2:
             admin_manager.add_movie()
         elif select_action == 3:
             admin_manager.add_schedule()
+        elif select_action == 4:
+            admin_manager.logout(id)
 
     @staticmethod
     def add_movie():
+        """ admin add movie """
         name = input("Enter movie name: ")
         while name == '' or name is None:
             name = input("Enter movie name: ")
@@ -131,16 +127,20 @@ class Admin:
         )
         connection.commit()
         print('movie added')
-        select_action = int(input("For add theater enter 1: \nFor add movie enter 2: \nFor add schedule enter 3: "))
+        select_action = int(input(
+            "For add theater enter 1: \nFor add movie enter 2: \nFor add schedule enter 3: \nFor logout enter 4: "))
         if select_action == 1:
             admin_manager.add_theater()
         elif select_action == 2:
             admin_manager.add_movie()
         elif select_action == 3:
             admin_manager.add_schedule()
+        elif select_action == 4:
+            admin_manager.logout(id)
 
     @staticmethod
     def add_schedule():
+        """ admin add schedule """
         movie_id = input("Enter movie id: ")
         while movie_id == '' or movie_id is None:
             movie_id = input("Enter movie id: ")
@@ -159,27 +159,27 @@ class Admin:
         )
         connection.commit()
         print('schedule added')
-        select_action = int(input("For add theater enter 1: \nFor add movie enter 2: \nFor add schedule enter 3: "))
+        select_action = int(input(
+            "For add theater enter 1: \nFor add movie enter 2: \nFor add schedule enter 3: \nFor logout enter 4: "))
         if select_action == 1:
             admin_manager.add_theater()
         elif select_action == 2:
             admin_manager.add_movie()
         elif select_action == 3:
             admin_manager.add_schedule()
+        elif select_action == 4:
+            admin_manager.logout(id)
+
+    @staticmethod
+    def logout(id):
+        cursor.execute(f"UPDATE User SET logged_in='0' where id='{id}'")
+        connection.commit()
+        print('log out')
 
 
 admin_manager = Admin()
-# admin_name = input('Enter your username: ')
-# email = input('Enter your email: ')
-# phone_number = input('Enter your phone number: ')
-# birth_date = input("Enter your birth_date with this format 0000-00-00: ")
-# password = input("Enter your password")
-# admin_manager.register(admin_name, email, phone_number, password, birth_date)
-# admin_manager.add_theater()
-# admin_manager.add_movie('harry pater', 3, 18, 85000)
 
 while True:
     chose_login_or_register = int(input("For register enter 1: "))
     if chose_login_or_register == 1:
         admin_manager.register()
-# admin_manager.add_schedule('a523d397-c33f-11ee-9027-0242ac150202', '41ddc2d2-6613-4a53-96ba-97348496d3b7','2024-02-25 15:30:30')
