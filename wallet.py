@@ -27,7 +27,7 @@ class Wallet:
         returns current amount of money in specified user wallet
         """
 
-        cursor.execute(f"SELECT id FROM User WHERE user_name = {user_name.__repr__()}")
+        cursor.execute(f"SELECT id FROM User WHERE username = {user_name.__repr__()}")
         user_id = cursor.fetchone()[0]
 
         cursor.execute(
@@ -51,8 +51,10 @@ class Wallet:
         pass
 
 
-w1 = Wallet()
-w1.create_wallet("Arman123")
+# w1 = Wallet()
+# w1.create_wallet("Arman123")
+
+# print(w1.wallet_balance('Arman123'))
 
 
 ############## test:
