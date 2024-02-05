@@ -1,5 +1,5 @@
 # Set root directory
-import dotenv, os, sys 
+import dotenv, os, sys
 
 dotenv.load_dotenv()
 sys.path.insert(0, os.getenv("RootDirectory"))

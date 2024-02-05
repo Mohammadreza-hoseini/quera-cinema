@@ -60,4 +60,3 @@
 #         func(username)
 #
 #     return wrapper
-
