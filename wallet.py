@@ -21,9 +21,8 @@ class Wallet:
     def __init__(self):
         pass
 
-
     @staticmethod
-    def wallet_balance(user_name: int) -> float:
+    def wallet_balance(user_name: str) -> float:
         """_summary_
         returns current amount of money in specified user wallet
         """
@@ -38,8 +37,22 @@ class Wallet:
         current_amount = float(cursor.fetchone()[0])
         return current_amount
 
+    @staticmethod
+    def create_wallet(user_name: str) -> None:
+        cursor.execute(f"SELECT id FROM User WHERE username = {user_name.__repr__()}")
+        user_id = cursor.fetchone()[0]
+
+        cursor.execute(
+            "INSERT INTO Wallet VALUES(uuid(), %s, current_timestamp, %s)", (user_id, 0)
+        )
+        connection.commit()
+
     def __str__(self):
         pass
+
+
+w1 = Wallet()
+w1.create_wallet("Arman123")
 
 
 ############## test:
