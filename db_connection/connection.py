@@ -1,6 +1,5 @@
 import mysql.connector
 
-
 try:
     connection = mysql.connector.connect(
         host="cho-oyu.liara.cloud",
