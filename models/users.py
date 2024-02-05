@@ -6,6 +6,8 @@ sys.path.insert(0, os.getenv("RootDirectory"))
 
 import re
 import hashlib
+import uuid
+
 from db_connection.connection import connection
 
 # from decorator import user_login_decorator
@@ -83,6 +85,7 @@ class Users:
         user_name = input("Enter your username: ")
         user_validation = self.validate_user_name(user_name)
         while user_validation in validate_username_dict:
+            print(validate_username_dict[user_validation])
             user_name = input("Enter your username: ")
             user_validation = self.validate_user_name(user_name)
         validate_email_dict = {
@@ -93,6 +96,7 @@ class Users:
         user_email = input("Enter your email: ")
         email_validation = self.validate_email(user_email)
         while email_validation in validate_email_dict:
+            print(validate_email_dict[email_validation])
             user_email = input("Enter your email: ")
             email_validation = self.validate_email(user_email)
         phone_number = input("Enter your phone number: ")
@@ -101,47 +105,35 @@ class Users:
         validate_phone_number = {-1: "phone number is invalid"}
         phone_number_validation = self.validate_phone_number(phone_number)
         while phone_number_validation in validate_phone_number:
+            print(validate_phone_number[phone_number_validation])
             phone_number = input("Enter your phone number: ")
             phone_number_validation = self.validate_phone_number(phone_number)
         password = input("Enter your password: ")
         validate_password = {-1: "enter password", -2: "password is invalid"}
         password_validation = self.validate_password(password)
         while password_validation in validate_password:
+            print(validate_password[password_validation])
             password = input("Enter your password: ")
             password_validation = self.validate_password(password)
         birth_date = input("Enter your birth_date with this format 0000-00-00: ")
-        cursor.execute(
-            """
-            INSERT INTO User(id, avatar, username, birth_date,
-                              phone_number, email, password,
-                              register_date, last_login,
-                              subscription, bought_subscription_date,
-                              role, logged_in)
-                              VALUES (
-                              uuid(), %s, %s,
-                              %s, %s,
-                              %s, %s, current_timestamp, %s,
-                              %s, %s, %s, %s
-                              )""",
-            (
-                "avatar_url",
-                user_name,
-                birth_date,
-                phone_number,
-                user_email,
-                self.validate_password(password),
-                "2024-01-20",
-                "2",
-                "2024-01-20",
-                "user",
-                "1",
-            ),
-        )
+        id = uuid.uuid4()
+
+        cursor.execute(f"INSERT INTO User(id, avatar, username, birth_date, phone_number, email, password,"
+                       f" register_date, last_login, subscription, bought_subscription_date, role, logged_in)"
+                       f" VALUES ('{id}', 'avatar_url', '{user_name}', '{birth_date}', '{phone_number}'"
+                       f", '{user_email}', '{password_validation}', current_timestamp, '2024-01-20','2', '2024-01-20',"
+                       f" 'user', '1')")
         connection.commit()
         print("registered complete")
+        select_action = int(input("For change username enter 1: \nFor change password enter 2: \nFor logout enter 3: "))
+        if select_action == 1:
+            user_manager.change_user_name(id)
+        elif select_action == 2:
+            user_manager.change_password(id)
+        elif select_action == 3:
+            user_manager.logout(id)
 
-    @staticmethod
-    def login():
+    def login(self):
         """this function for user login"""
         user_name = input("Enter your username: ")
         while user_name == "" or user_name is None:
@@ -151,40 +143,81 @@ class Users:
             password = input("Enter your password: ")
         cursor.execute(
             f"SELECT * FROM User where username='{user_name}' and"
-            f" password='{hashlib.sha256(password.encode()).hexdigest()}'"
+            f" password='{self.validate_password(password)}'"
         )
-        results = cursor.fetchall()
+        results = cursor.fetchone()
+        id = results[0]
         cursor.execute(f"UPDATE User SET logged_in='1' where username='{user_name}'")
         connection.commit()
         if results:
             print("you are logged in")
+            select_action = int(
+                input("For change username enter 1: \nFor change password enter 2: \nFor logout enter 3: "))
+            if select_action == 1:
+                user_manager.change_user_name(id)
+            elif select_action == 2:
+                user_manager.change_password(id)
+            elif select_action == 3:
+                user_manager.logout(id)
         else:
             print("username or password is wrong")
 
     @staticmethod
     # @user_login_decorator
-    def change_user_name(user_name) -> bool:
+    def change_user_name(id: str) -> None:
         """ this function for change username """
         new_user_name = input("Enter new username: ")
         cursor.execute(
-            f"UPDATE User SET username='{new_user_name}' where username='{user_name}'"
+            f"UPDATE User SET username='{new_user_name}' where id='{id}'"
         )
         connection.commit()
+        print('username changed')
+        select_action = int(input("For change username enter 1: \nFor change password enter 2: \nFor logout enter 3: "))
+        if select_action == 1:
+            user_manager.change_user_name(id)
+        elif select_action == 2:
+            user_manager.change_password(id)
+        elif select_action == 3:
+            user_manager.logout(id)
 
-    @staticmethod
     # @user_login_decorator
-    def change_password(user_name: str) -> bool:
+    def change_password(self, id: str) -> None:
         """ this function for change username """
         new_password = input("Enter new password: ")
+        validate_password_new_password = {-1: "enter password", -2: "password is invalid"}
+        new_password_validation = self.validate_password(new_password)
+        while new_password_validation in validate_password_new_password:
+            print(validate_password_new_password[new_password_validation])
+            new_password = input("Enter new password: ")
+            new_password_validation = self.validate_password(new_password)
         confirm_password = input("Enter password again: ")
-        if new_password != confirm_password:
-            print("password is not match")
-            return False
+        validate_confirm_password = {-1: "enter password", -2: "password is invalid"}
+        confirm_password_validation = self.validate_password(confirm_password)
+        while confirm_password_validation in validate_confirm_password:
+            print(validate_confirm_password[confirm_password_validation])
+            confirm_password = input("Enter password again: ")
+            confirm_password_validation = self.validate_password(confirm_password)
+        while new_password != confirm_password:
+            print("password not match")
+            self.change_password(id)
         cursor.execute(
-            f"UPDATE User SET password='{hashlib.sha256(new_password.encode()).hexdigest()}' where username='{user_name}'"
+            f"UPDATE User SET password='{self.validate_password(confirm_password)}' where id='{id}'"
         )
         connection.commit()
-        print("password change")
+        print("password changed")
+        select_action = int(input("For change username enter 1: \nFor change password enter 2: \nFor logout enter 3: "))
+        if select_action == 1:
+            user_manager.change_user_name(id)
+        elif select_action == 2:
+            user_manager.change_password(id)
+        elif select_action == 3:
+            user_manager.logout(id)
+
+    @staticmethod
+    def logout(id):
+        cursor.execute(f"UPDATE User SET logged_in='0' where id='{id}'")
+        connection.commit()
+        print('log out')
 
 
 user_manager = Users()
