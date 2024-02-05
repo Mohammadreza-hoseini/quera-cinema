@@ -1,7 +1,3 @@
-from connection import connection
+import datetime
 
-cursor = connection.cursor()
-cursor.execute("SELECT * FROM User1")
-results = cursor.fetchall()
-for row in results:
-    print(row)
+print(datetime.datetime.now())
