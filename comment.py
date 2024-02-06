@@ -31,3 +31,7 @@ class Comment:
             print('your comment added')
         except InvalidArguments as e:
             print(e)
+
+    @staticmethod
+    def reply_to_comment(user_id: str):
+        ...
