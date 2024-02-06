@@ -34,11 +34,16 @@ class Movie:
         cursor.execute(f'SELECT COUNT(*) FROM Schedule WHERE movie_id = "%{self.uuid}"')
         return cursor.fetchone()[0]
 
+    # movie list
+    def movie_list(self):
+        cursor.execute(f'select * from Schedule where on_screen_time >= now();')
+        list_of_time = cursor.fetchall()
+        print(list_of_time)
+
     def __str__(self):
         return self.name
 
 
 a = Movie('son of kgod', 18)
 
-a.create_movie()
-print(a.average_rate())
+a.movie_list()
