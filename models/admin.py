@@ -82,8 +82,12 @@ class Admin:
         capacity = input('Enter capacity: ')
         while capacity == '' or capacity is None:
             capacity = input('Enter capacity: ')
+        name = input('Enter theater name: ')
+        while name == '' or name is None:
+            name = input('Enter theater name: ')
         create_uuid = uuid.uuid4()
-        cursor.execute(f"INSERT INTO Theater (id, capacity, average_rate) VALUES ('{create_uuid}', '{capacity}', -1)")
+        cursor.execute(
+            f"INSERT INTO Theater (id, capacity, average_rate, name) VALUES ('{create_uuid}', '{capacity}', -1, '{name}')")
         connection.commit()
         for item in range(1, int(capacity) + 1):
             cursor.execute(f"INSERT INTO Sit (id, theater_id, status) VALUES (uuid(), '{create_uuid}', '0')")
