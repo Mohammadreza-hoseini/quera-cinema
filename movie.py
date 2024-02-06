@@ -1,12 +1,6 @@
-# Set root directory
-import dotenv, os, sys
-
-dotenv.load_dotenv()
-sys.path.insert(0, os.getenv("RootDirectory"))
-
 import uuid
 
-from db_connection.connection import connection
+from connection import connection
 
 cursor = connection.cursor()
 
