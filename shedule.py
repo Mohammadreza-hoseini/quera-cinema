@@ -8,37 +8,18 @@ class Schedule:
         pass
 
     @classmethod
-    def add_schedule(cls, movie_id, theater_id, on_screen_time):
-
-        # movie existing query
-        cursor.execute(f"SELECT id FROM Movie WHERE id = '{movie_id}'")
-        movie_data = cursor.fetchone()
-
-        # movie existing query
-        if movie_data is not None:
-            movie_data = movie_data[0]
-        else:
-            return "Movie does not exist "
-
-        # theater existing query
-        cursor.execute(f"SELECT id FROM Theater WHERE id = '{theater_id}'")
-        theater_data = cursor.fetchone()
-
-        if theater_data is not None:
-            theater_id_result = theater_data[0]
-        else:
-            return "theater does not exist"
-
+    def movie_list(cls):
         cursor.execute(
-            f'insert into Schedule(id, movie_id, theater_id, on_screen_time)values (uuid(),"{movie_data}", "{theater_id_result}", "{on_screen_time}")')
-        connection.commit()
+            f'select M.name, M.price, M.age_limit, S.theater_name from Movie M join Schedule S on M.name = S.movie_name')
+        movie_list_data = cursor.fetchall()
+        for movie_data in movie_list_data:
+            print(f'MovieName=>{movie_data[0]}', f'MoviePrice=>{movie_data[1]}', f'MovieAgeLimit=>{movie_data[2]}', f'MovieTheaterName=>{movie_data[3]}', sep='\t')
 
     @classmethod
     def time_list(cls):
 
         cursor.execute(
-            f'select * from Schedule where on_screen_time >= now();'
-        )
+            f'select * from Schedule where on_screen_time >= now() order by on_screen_time desc;')
         time_list_date = cursor.fetchall()
 
         for i in time_list_date:
@@ -49,5 +30,5 @@ class Schedule:
             print(i[0], movie_name, theater_name, i[3], sep='|---|')
 
 
-# a = Schedule.add_schedule('10', '41ddc2d2-6613-4a53-96ba-97348496d3b8', '2025-10-11 10:00:00')
-Schedule.time_list()
+# Schedule.time_list()
+Schedule.movie_list()
