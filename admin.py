@@ -4,6 +4,7 @@ import uuid
 
 from connection import connection
 from users import Users
+from errors import MovieNameDoesNotExist
 
 # from decorator import admin_login_decorator
 
@@ -68,6 +69,42 @@ class Admin:
             admin_manager.add_schedule()
         elif select_action == 4:
             admin_manager.logout(id)
+
+    @staticmethod
+    def login():
+        """this function for user login"""
+        user_name = input("Enter your username: ")
+        while user_name == "" or user_name is None:
+            user_name = input("Enter your username: ")
+        password = input("Enter your password: ")
+        while password == "" or password is None:
+            password = input("Enter your password: ")
+        cursor.execute(
+            f"SELECT * FROM User where username='{user_name}' and"
+            f" password='{Users.validate_password(password)}' and role='admin'"
+        )
+        results = cursor.fetchone()
+        try:
+            id = results[0]
+            cursor.execute(f"UPDATE User SET logged_in='1' where username='{user_name}'")
+            connection.commit()
+        except InvalidUsernameOrPassword as e:
+            print(e)
+            return False
+        if results:
+            print("you are logged in")
+            select_action = int(input(
+                "For add theater enter 1: \nFor add movie enter 2: \nFor add schedule enter 3: \nFor logout enter 4: "))
+            if select_action == 1:
+                admin_manager.add_theater()
+            elif select_action == 2:
+                admin_manager.add_movie()
+            elif select_action == 3:
+                admin_manager.add_schedule()
+            elif select_action == 4:
+                admin_manager.logout(id)
+        else:
+            print("username or password is wrong")
 
     @staticmethod
     # @admin_login_decorator
@@ -139,21 +176,31 @@ class Admin:
     @staticmethod
     def add_schedule():
         """ admin add schedule """
-        movie_id = input("Enter movie id: ")
-        while movie_id == '' or movie_id is None:
-            movie_id = input("Enter movie id: ")
-        theater_id = input("Enter theater id ")
-        while theater_id == '' or theater_id is None:
-            theater_id = input("Enter theater id ")
+        movie_name = input("Enter movie_name: ")
+        cursor.execute(f"SELECT name FROM Movie WHERE name='{movie_name}'")
+        data = cursor.fetchone()
+        while movie_name == '' or movie_name is None or not data:
+            print('movie name does not exist')
+            movie_name = input("Enter movie name: ")
+            cursor.execute(f"SELECT name FROM Movie WHERE name='{movie_name}'")
+            data = cursor.fetchone()
+        theater_name = input("Enter theater name: ")
+        cursor.execute(f"SELECT name FROM Theater WHERE name='{theater_name}'")
+        data = cursor.fetchone()
+        while theater_name == '' or theater_name is None or not data:
+            print('theater name does not exist')
+            theater_name = input("Enter theater name: ")
+            cursor.execute(f"SELECT name FROM Theater WHERE name='{theater_name}'")
+            data = cursor.fetchone()
         on_screen_time = input("Enter screen time 0000-00-00 00:00:00 : ")
         while on_screen_time == '' or on_screen_time is None:
             on_screen_time = input("Enter screen time 0000-00-00 00:00:00 : ")
         cursor.execute(
             '''
-            INSERT INTO Schedule(id, movie_id, theater_id, on_screen_time)
+            INSERT INTO Schedule(id, movie_name, theater_name, on_screen_time)
                               VALUES (
                               uuid(), %s, %s,
-                              %s)''', (movie_id, theater_id, on_screen_time)
+                              %s)''', (movie_name, theater_name, on_screen_time)
         )
         connection.commit()
         print('schedule added')
@@ -178,6 +225,9 @@ class Admin:
 admin_manager = Admin()
 
 while True:
-    chose_login_or_register = int(input("For register enter 1: "))
+    chose_login_or_register = int(input("For register enter 1: \nFor login enter 2: "))
     if chose_login_or_register == 1:
         admin_manager.register()
+    elif chose_login_or_register == 2:
+        admin_manager.login()
+
