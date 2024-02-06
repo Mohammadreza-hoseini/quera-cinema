@@ -4,6 +4,7 @@ import uuid
 
 from connection import connection
 from rate_to_movies import MovieRate
+from comment import Comment
 from errors import InvalidUsernameOrPassword
 
 # from decorator import user_login_decorator
@@ -146,17 +147,18 @@ class Users:
             id = results[0]
             cursor.execute(f"UPDATE User SET logged_in='1' where username='{user_name}'")
             connection.commit()
-        except Exception as e:
+        except InvalidUsernameOrPassword as e:
             print(e)
             return False
         if results:
             print("you are logged in")
             select_action = int(
                 input(
-                    "For change username enter 1:"
-                    " \nFor change password enter 2:"
-                    " \nFor logout enter 3:"
-                    " \nFor rate to movie enter 4: "))
+                    "For change username enter 1: "
+                    "\nFor change password enter 2: "
+                    "\nFor logout enter 3: "
+                    "\nFor rate to movie enter 4: "
+                    "\nFor add comment to movie enter 5: "))
             if select_action == 1:
                 user_manager.change_user_name(id)
             elif select_action == 2:
@@ -165,6 +167,8 @@ class Users:
                 user_manager.logout(id)
             elif select_action == 4:
                 MovieRate.rate_to_movie(id)
+            elif select_action == 5:
+                Comment.add_comment_to_movie(id)
         else:
             print("username or password is wrong")
 
