@@ -55,3 +55,8 @@ class EmailExist(CustomError):
 class InvalidPhoneNumber(CustomError):
     def __init__(self):
         CustomError.__init__(self, 'phone number is invalid')
+
+
+class MovieNameDoesNotExist(CustomError):
+    def __init__(self):
+        CustomError.__init__(self, 'movie name does not exist')
