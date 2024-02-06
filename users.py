@@ -1,14 +1,10 @@
-# Set root directory
-import dotenv, os, sys
-
-dotenv.load_dotenv()
-sys.path.insert(0, os.getenv("RootDirectory"))
-
 import re
 import hashlib
 import uuid
 
-from db_connection.connection import connection
+from connection import connection
+from rate_to_movies import MovieRate
+from errors import InvalidUsernameOrPassword
 
 # from decorator import user_login_decorator
 
@@ -146,19 +142,29 @@ class Users:
             f" password='{self.validate_password(password)}'"
         )
         results = cursor.fetchone()
-        id = results[0]
-        cursor.execute(f"UPDATE User SET logged_in='1' where username='{user_name}'")
-        connection.commit()
+        try:
+            id = results[0]
+            cursor.execute(f"UPDATE User SET logged_in='1' where username='{user_name}'")
+            connection.commit()
+        except Exception as e:
+            print(e)
+            return False
         if results:
             print("you are logged in")
             select_action = int(
-                input("For change username enter 1: \nFor change password enter 2: \nFor logout enter 3: "))
+                input(
+                    "For change username enter 1:"
+                    " \nFor change password enter 2:"
+                    " \nFor logout enter 3:"
+                    " \nFor rate to movie enter 4: "))
             if select_action == 1:
                 user_manager.change_user_name(id)
             elif select_action == 2:
                 user_manager.change_password(id)
             elif select_action == 3:
                 user_manager.logout(id)
+            elif select_action == 4:
+                MovieRate.rate_to_movie(id)
         else:
             print("username or password is wrong")
 

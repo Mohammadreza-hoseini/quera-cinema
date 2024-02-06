@@ -1,14 +1,8 @@
-# Set root directory
-import dotenv, os, sys
-
-dotenv.load_dotenv()
-sys.path.insert(0, os.getenv("RootDirectory"))
-
 import hashlib
 import re
 import uuid
 
-from db_connection.connection import connection
+from connection import connection
 from users import Users
 
 # from decorator import admin_login_decorator
