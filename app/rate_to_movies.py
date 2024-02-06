@@ -1,7 +1,7 @@
 import re
 import hashlib
 import uuid
-
+#from tests.test_db_connection import cnx as connection #connect to test local DB
 from connection import connection
 from errors import MovieNameDoesNotExist, InvalidArguments
 
