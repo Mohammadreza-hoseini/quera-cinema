@@ -1,7 +1,7 @@
 import re
 import hashlib
 import uuid
-
+#from tests.test_db_connection import cnx as connection #connect to test local DB
 from connection import connection
 from rate_to_movies import MovieRate
 from comment import Comment
@@ -192,6 +192,7 @@ class Users:
 
     # @user_login_decorator
     def change_password(self, id: str) -> None:
+        confirm_password_is_vlid = True
         """ this function for change username """
         new_password = input("Enter new password: ")
         validate_password_new_password = {-1: "enter password", -2: "password is invalid"}
@@ -208,6 +209,7 @@ class Users:
             confirm_password = input("Enter password again: ")
             confirm_password_validation = self.validate_password(confirm_password)
         while new_password != confirm_password:
+            confirm_password_is_vlid = False
             print("password not match")
             self.change_password(id)
         cursor.execute(
