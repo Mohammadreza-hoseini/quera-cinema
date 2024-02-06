@@ -1,4 +1,3 @@
-
 from connection import connection
 
 cursor = connection.cursor()
@@ -18,6 +17,8 @@ class Theater:
         )
         data = cursor.fetchone()
         avg_rate = data[0]
+        if avg_rate < 0:
+            return "No rate for this theater"
         return avg_rate
 
     @staticmethod
@@ -29,6 +30,17 @@ class Theater:
             f"""SELECT id FROM Theater WHERE name = {theater_name.__repr__()} """
         )
         return cursor.fetchone()[0]
+
+    @staticmethod
+    def update_avg_rate(theater_id: str):
+        cursor.execute(
+            f"""SELECT AVG(rate) FROM TheaterRateTable WHERE theater_id={theater_id.__repr__()}"""
+        )
+        new_avg = cursor.fetchone()[0]
+        cursor.execute(
+            f"""UPDATE Theater SET average_rate={new_avg} WHERE id={theater_id.__repr__()}"""
+        )
+        connection.commit()
 
     @staticmethod
     def rate_theater(user_id: str, theater_name: str, rate: int) -> None:
@@ -58,6 +70,7 @@ class Theater:
             )
             print("Your rate is added")
         connection.commit()
+        Theater.update_avg_rate(theater_id)
 
     @staticmethod
     def theater_name_list():
@@ -69,11 +82,13 @@ class Theater:
         print(theater_name)
 
 
-t1 = Theater()
-# t1.theater_name_list()
-# t1.rate_theater(
-#     user_id="3075600f-c29c-11ee-9027-0242ac150202", theater_name="valiasr", rate=2
-# )
-t1.rate_theater(
-    user_id="99a8fdac-ed21-4d1f-9639-afd6fb68ca7b", theater_name="valiasr", rate=3
-)
+if __name__ == "__main__":
+    t1 = Theater()
+    # t1.theater_name_list()
+    # t1.rate_theater(
+    #     user_id="3075600f-c29c-11ee-9027-0242ac150202", theater_name="valiasr", rate=2
+    # )
+    # t1.rate_theater(
+    #     user_id="99a8fdac-ed21-4d1f-9639-afd6fb68ca7b", theater_name="valiasr", rate=3
+    # )
+    t1.update_avg_rate(theater_id="41ddc2d2-6613-4a53-96ba-97348496d3b7")
