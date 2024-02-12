@@ -1,10 +1,11 @@
 import hashlib
 import re
 import uuid
+from datetime import datetime
 
-from connection import connection
+from connection import connection, redis_client
 from users import Users
-from errors import MovieNameDoesNotExist
+from errors import MovieNameDoesNotExist, InvalidUsernameOrPassword
 
 # from decorator import admin_login_decorator
 
@@ -15,6 +16,50 @@ class Admin:
 
     def __init__(self):
         pass
+
+    @staticmethod
+    def insert_movies_to_cache() -> None:
+        cursor.execute(
+            f"""SELECT name, average_rate, age_limit, price FROM Movie ORDER BY average_rate DESC"""
+        )
+        data = cursor.fetchall()
+
+        movie_list = []
+        for movie_tuple in data:
+            name, average_rate, age_limit, price = movie_tuple
+            movie_data = {
+                "name": name,
+                "average_rate": average_rate,
+                "age_limit": age_limit,
+                "price": price,
+            }
+            movie_list.append(movie_data)
+        redis_client.set('movies', str(movie_list))
+
+    @staticmethod
+    def insert_schedules_to_cache(movie_name: str) -> None:
+        """
+        Returns all available schedules for a movie
+        """
+
+        cursor.execute(
+            f"""SELECT movie_name, theater_name, on_screen_time FROM Schedule JOIN Theater ON Schedule.theater_name = Theater.name
+                               WHERE Schedule.movie_name = {movie_name.__repr__()}
+                               ORDER BY Theater.average_rate DESC
+                               """
+        )
+        data = cursor.fetchall()
+        available_schedules = []
+        for movie_tuple in data:
+            movie_name, theater_name, on_screen_time = movie_tuple
+            schedule_data = {
+                "movie_name": movie_name,
+                "theater_name": theater_name,
+                "on_screen_time": on_screen_time,
+            }
+            if on_screen_time >= datetime.now():
+                available_schedules.append(schedule_data)
+        redis_client.set('schedules', str(available_schedules))
 
     @staticmethod
     def register() -> None:
@@ -84,13 +129,10 @@ class Admin:
             f" password='{Users.validate_password(password)}' and role='admin'"
         )
         results = cursor.fetchone()
-        try:
+        if results is not None:
             id = results[0]
             cursor.execute(f"UPDATE User SET logged_in='1' where username='{user_name}'")
             connection.commit()
-        except InvalidUsernameOrPassword as e:
-            print(e)
-            return False
         if results:
             print("you are logged in")
             select_action = int(input(
@@ -161,6 +203,8 @@ class Admin:
                                        age_limit, price)
         )
         connection.commit()
+        # insert data to redis cache
+        admin_manager.insert_movies_to_cache()
         print('movie added')
         select_action = int(input(
             "For add theater enter 1: \nFor add movie enter 2: \nFor add schedule enter 3: \nFor logout enter 4: "))
@@ -203,6 +247,7 @@ class Admin:
                               %s)''', (movie_name, theater_name, on_screen_time)
         )
         connection.commit()
+        admin_manager.insert_schedules_to_cache(movie_name)
         print('schedule added')
         select_action = int(input(
             "For add theater enter 1: \nFor add movie enter 2: \nFor add schedule enter 3: \nFor logout enter 4: "))
@@ -230,4 +275,3 @@ while True:
         admin_manager.register()
     elif chose_login_or_register == 2:
         admin_manager.login()
-
