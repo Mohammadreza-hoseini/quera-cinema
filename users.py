@@ -172,11 +172,20 @@ class Users:
         else:
             print("username or password is wrong")
 
-    @staticmethod
     # @user_login_decorator
-    def change_user_name(id: str) -> None:
+    def change_user_name(self, id: str) -> None:
         """ this function for change username """
+        validate_username_dict = {
+            -1: "enter username",
+            -2: "username is invalid",
+            -3: "username exist",
+        }
         new_user_name = input("Enter new username: ")
+        user_validation = self.validate_user_name(new_user_name)
+        while user_validation in validate_username_dict:
+            print(validate_username_dict[user_validation])
+            new_user_name = input("Enter new username: ")
+            user_validation = self.validate_user_name(new_user_name)
         cursor.execute(
             f"UPDATE User SET username='{new_user_name}' where id='{id}'"
         )
