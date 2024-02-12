@@ -7,6 +7,7 @@ from rate_to_movies import MovieRate
 from comment import Comment
 from errors import InvalidUsernameOrPassword
 
+
 # from decorator import user_login_decorator
 
 cursor = connection.cursor()
@@ -233,16 +234,14 @@ class Users:
 user_manager = Users()
 
 
-def main():
-    while True:
-        chose_login_or_register = int(
-            input(
-                "For register enter 1: \nFor login enter 2: "))
-        if chose_login_or_register == 1:
-            user_manager.register()
-        elif chose_login_or_register == 2:
-            user_manager.login()
+def main(user_input):
+    return "mainnnnnn"
+    if user_input == 1:
+        user_manager.register()
+    elif user_input == 2:
+        print("salam")
+        user_manager.login()
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main(user_input)
