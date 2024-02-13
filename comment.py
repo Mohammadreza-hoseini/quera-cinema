@@ -33,5 +33,41 @@ class Comment:
             print(e)
 
     @staticmethod
-    def reply_to_comment(user_id: str):
+    def get_all_comments_of_movie():
+        movie_name = input('Enter name of movie: ')
+        while movie_name == '' or movie_name is None:
+            movie_name = input('Enter name of movie: ')
+        try:
+            cursor.execute(f"SELECT name FROM Movie WHERE name='{movie_name}'")
+            result = cursor.fetchone()
+            movie_name = result[0]
+            print(movie_name)
+        except MovieNameDoesNotExist as e:
+            print(e)
+            return False
+        try:
+            cursor.execute(f"SELECT id, user_id, created_at, body FROM Comment WHERE movie_name='{movie_name}'")
+            results = cursor.fetchall()
+            comments_list = []
+            for row in results:
+                id, user_id, created_at, body = row
+                comments_data = {
+                    'id': id,
+                    'user_id': user_id,
+                    'created_at': created_at,
+                    'body': body,
+                }
+                comments_list.append(comments_data)
+            print(comments_list)
+        except InvalidArguments as e:
+            print(e)
+            return False
+
+    @staticmethod
+    def reply_to_comment(user_id: str, comment_id: str) -> None:
+        """ this function for reply to comment """
         ...
+
+
+comment_manager = Comment()
+comment_manager.get_all_comments_of_movie()
