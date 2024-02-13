@@ -72,7 +72,8 @@ class Users:
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
         return hashed_password
 
-    def register(self):
+    @staticmethod
+    def register():
         """this function for register new user"""
         validate_username_dict = {
             -1: "enter username",
@@ -80,38 +81,38 @@ class Users:
             -3: "username exist",
         }
         user_name = input("Enter your username: ")
-        user_validation = self.validate_user_name(user_name)
+        user_validation = Users.validate_user_name(user_name)
         while user_validation in validate_username_dict:
             print(validate_username_dict[user_validation])
             user_name = input("Enter your username: ")
-            user_validation = self.validate_user_name(user_name)
+            user_validation = Users.validate_user_name(user_name)
         validate_email_dict = {
             -1: "enter email",
             -2: "email is invalid",
             -3: "email exist",
         }
         user_email = input("Enter your email: ")
-        email_validation = self.validate_email(user_email)
+        email_validation = Users.validate_email(user_email)
         while email_validation in validate_email_dict:
             print(validate_email_dict[email_validation])
             user_email = input("Enter your email: ")
-            email_validation = self.validate_email(user_email)
+            email_validation = Users.validate_email(user_email)
         phone_number = input("Enter your phone number: ")
         if phone_number == "":
             phone_number = None
         validate_phone_number = {-1: "phone number is invalid"}
-        phone_number_validation = self.validate_phone_number(phone_number)
+        phone_number_validation = Users.validate_phone_number(phone_number)
         while phone_number_validation in validate_phone_number:
             print(validate_phone_number[phone_number_validation])
             phone_number = input("Enter your phone number: ")
-            phone_number_validation = self.validate_phone_number(phone_number)
+            phone_number_validation = Users.validate_phone_number(phone_number)
         password = input("Enter your password: ")
         validate_password = {-1: "enter password", -2: "password is invalid"}
-        password_validation = self.validate_password(password)
+        password_validation = Users.validate_password(password)
         while password_validation in validate_password:
             print(validate_password[password_validation])
             password = input("Enter your password: ")
-            password_validation = self.validate_password(password)
+            password_validation = Users.validate_password(password)
         birth_date = input("Enter your birth_date with this format 0000-00-00: ")
         id = uuid.uuid4()
 
@@ -242,19 +243,18 @@ class Users:
 user_manager = Users()
 
 
-# def main():
-#     while True:
-#         chose_login_or_register = int(
-#             input(
-#                 "For register enter 1: \nFor login enter 2: "))
-#         if chose_login_or_register == 1:
-#             user_manager.register()
-#         elif chose_login_or_register == 2:
-#             user_manager.login()
-#
-#
-# if __name__ == "__main__":
-#     main()
+def main():
+    chose_login_or_register = int(
+        input(
+            "For register enter 1: \nFor login enter 2: "))
+    if chose_login_or_register == 1:
+        user_manager.register()
+    elif chose_login_or_register == 2:
+        user_manager.login()
+
+
+if __name__ == "__main__":
+    main()
 
 
 def chose_input(number):

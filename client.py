@@ -1,26 +1,34 @@
 import socket
-from users import chose_input
+import pickle
 
-# Define host and port
-HOST = '127.0.0.1'
-PORT = 12345
 
-# Create a socket object
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def run_client():
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Connect to the server
-client_socket.connect((HOST, PORT))
+    server_ip = "localhost"
+    server_port = 8000
+    client.connect((server_ip, server_port))
 
-# Send data to the server
-client_socket.sendall(b"1")
+    try:
+        while True:
+            msg = input("Enter message: ")
+            client.send(msg.encode("utf-8")[:1024])
 
-# Receive response from the server
-response = client_socket.recv(1024)
+            response = client.recv(1024)
+            print("Salam")
+            response = pickle.loads(response)
 
-choose_your_input = chose_input(1)
-print(choose_your_input)
+            response()
 
-print(f"Response from server: {response.decode('utf-8')}")
+            if response.lower() == "closed":
+                break
 
-# Close the connection
-client_socket.close()
+            print(f"Received: {response}")
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        client.close()
+        print("Connection to server closed")
+
+
+run_client()
