@@ -53,7 +53,10 @@ def run_client():
                 if command == "-1":
                     return "logout"
 
-                client.send(command.encode("utf-8"))
+
+                data = pickle.dumps(command)
+                
+                client.send(data)
 
                 response = client.recv(1024)
                 response_func = pickle.loads(response)
@@ -66,13 +69,18 @@ def run_client():
                 if command == "-1":
                     return "logout"
 
-                data = pickle.dumps((command, user_id))
+                print("UUUUUUUUUUUU", user_id)
+                data_tuple = (command, user_id)
+                data = pickle.dumps(data_tuple)
                 client.send(data)
 
                 response = client.recv(1024)
+                print("injaaaa")
+                print(type(pickle.loads(response)))
                 response_func = pickle.loads(response)
 
-                response_func()
+                print("baba3")
+                response_func(user_id)
 
             res1 = login_register()
             if res1 == "logout":

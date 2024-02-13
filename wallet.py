@@ -52,11 +52,3 @@ class Wallet:
 
     def __str__(self):
         pass
-
-
-if __name__ == "__main__":
-
-    w1 = Wallet()
-    # w1.create_wallet("3075600f-c29c-11ee-9027-0242ac150202")
-
-    w1.pay_from_wallet("a75d1ce3-78dc-4e60-be8c-5b90c00b09cb", 3000000)

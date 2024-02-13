@@ -11,9 +11,13 @@ def handle_client(client_socket, addr):
     try:
         while True:
             request = client_socket.recv(1024)
-            command, user_id = pickle.loads(request)
-            print("SSSSSSSSSS")
-            print(command, user_id)
+            data = pickle.loads(request)
+            print("ssssssssssssssssss", type(data))
+            if isinstance(data, tuple):
+                command, user_id = data
+            else:
+                command = data
+            print("baba1", command)
             if command == "1":  # register
                 register_func = Users.register
                 # convert to byte
@@ -21,22 +25,22 @@ def handle_client(client_socket, addr):
                 client_socket.send(pickled_function)
 
             if command == "2": #login
-                register_func = Users.login
+                login_func = Users.login
                 # convert to byte
-                pickled_function = pickle.dumps(register_func)
+                pickled_function = pickle.dumps(login_func)
                 client_socket.send(pickled_function)
             
             if command == "3": #change username
-                register_func = Users.change_user_name
+                change_username_func = Users.change_user_name
+                print("baba2", type(change_username_func))
                 # convert to byte
-                pickled_function = pickle.dumps(register_func)
+                pickled_function = pickle.dumps(change_username_func)
                 client_socket.send(pickled_function)
             
             
             
             
 
-            print(f"Received: {request}")
             # convert and send accept response to the client
             response = "accepted"
             client_socket.send(response.encode("utf-8"))
