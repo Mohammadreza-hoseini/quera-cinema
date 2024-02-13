@@ -60,3 +60,8 @@ class InvalidPhoneNumber(CustomError):
 class MovieNameDoesNotExist(CustomError):
     def __init__(self):
         CustomError.__init__(self, 'movie name does not exist')
+
+
+class InvalidDate(CustomError):
+    def __init__(self):
+        CustomError.__init__(self, 'birth date is invalid')

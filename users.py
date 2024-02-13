@@ -1,11 +1,12 @@
 import re
 import hashlib
 import uuid
+from datetime import datetime
 
 from connection import connection
 from rate_to_movies import MovieRate
 from comment import Comment
-from errors import InvalidUsernameOrPassword
+from errors import InvalidUsernameOrPassword, InvalidDate
 
 # from decorator import user_login_decorator
 
@@ -114,6 +115,10 @@ class Users:
             password = input("Enter your password: ")
             password_validation = Users.validate_password(password)
         birth_date = input("Enter your birth_date with this format 0000-00-00: ")
+        pattern_str = r'^\d{4}-\d{2}-\d{2}$'
+        while not re.match(pattern_str, birth_date):
+            birth_date = input("Enter your birth_date with this format 0000-00-00: ")
+            print(birth_date)
         id = uuid.uuid4()
 
         cursor.execute(f"INSERT INTO User(id, avatar, username, birth_date, phone_number, email, password,"
@@ -123,15 +128,24 @@ class Users:
                        f" 'user', '1')")
         connection.commit()
         print("registered complete")
-        select_action = int(input("For change username enter 1: \nFor change password enter 2: \nFor logout enter 3: "))
-        if select_action == 1:
+        select_action = input("For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: ")
+        while select_action not in ['1', '2', '-1']:
+            select_action = input(
+                "For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: "
+                "\nFor rate to movie enter 4: \nFor add comment to movie enter 5: ")
+        if select_action == '1':
             user_manager.change_user_name(id)
-        elif select_action == 2:
+        elif select_action == '2':
             user_manager.change_password(id)
-        elif select_action == 3:
+        elif select_action == '-1':
             user_manager.logout(id)
+        elif select_action == '4':
+            MovieRate.rate_to_movie(id)
+        elif select_action == '5':
+            Comment.add_comment_to_movie(id)
 
-    def login(self):
+    @staticmethod
+    def login():
         """this function for user login"""
         user_name = input("Enter your username: ")
         while user_name == "" or user_name is None:
@@ -141,43 +155,53 @@ class Users:
             password = input("Enter your password: ")
         cursor.execute(
             f"SELECT * FROM User where username='{user_name}' and"
-            f" password='{self.validate_password(password)}'"
+            f" password='{Users.validate_password(password)}'"
         )
         results = cursor.fetchone()
-        if results is None:
+        while results is None:
             print('Username or Password is wrong')
-            return False
-        try:
-            id = results[0]
-            cursor.execute(f"UPDATE User SET logged_in='1' where username='{user_name}'")
-            connection.commit()
-        except InvalidUsernameOrPassword as e:
-            print(e)
-            return False
-        if results:
-            print("you are logged in")
-            select_action = int(
-                input(
-                    "For change username enter 1: "
-                    "\nFor change password enter 2: "
-                    "\nFor logout enter 3: "
-                    "\nFor rate to movie enter 4: "
-                    "\nFor add comment to movie enter 5: "))
-            if select_action == 1:
-                user_manager.change_user_name(id)
-            elif select_action == 2:
-                user_manager.change_password(id)
-            elif select_action == 3:
-                user_manager.logout(id)
-            elif select_action == 4:
-                MovieRate.rate_to_movie(id)
-            elif select_action == 5:
-                Comment.add_comment_to_movie(id)
-        else:
-            print("username or password is wrong")
+            user_name = input("Enter your username: ")
+            while user_name == "" or user_name is None:
+                user_name = input("Enter your username: ")
+            password = input("Enter your password: ")
+            while password == "" or password is None:
+                password = input("Enter your password: ")
+            cursor.execute(
+                f"SELECT * FROM User where username='{user_name}' and"
+                f" password='{Users.validate_password(password)}'"
+            )
+            results = cursor.fetchone()
+        id = results[0]
+        cursor.execute(f"UPDATE User SET logged_in='1' where username='{user_name}'")
+        connection.commit()
+        print("you are logged in")
+        select_action = input(
+            "For change username enter 1: "
+            "\nFor change password enter 2: "
+            "\nFor logout enter -1: "
+            "\nFor rate to movie enter 4: "
+            "\nFor add comment to movie enter 5: ")
+        while select_action not in ['1', '2', '-1', '4', '5']:
+            select_action = input(
+                "For change username enter 1: "
+                "\nFor change password enter 2: "
+                "\nFor logout enter -1: "
+                "\nFor rate to movie enter 4: "
+                "\nFor add comment to movie enter 5: ")
+        if select_action == '1':
+            user_manager.change_user_name(id)
+        elif select_action == '2':
+            user_manager.change_password(id)
+        elif select_action == '-1':
+            user_manager.logout(id)
+        elif select_action == '4':
+            MovieRate.rate_to_movie(id)
+        elif select_action == '5':
+            Comment.add_comment_to_movie(id)
 
     # @user_login_decorator
-    def change_user_name(self, id: str) -> None:
+    @staticmethod
+    def change_user_name(id: str) -> None:
         """ this function for change username """
         validate_username_dict = {
             -1: "enter username",
@@ -185,56 +209,73 @@ class Users:
             -3: "username exist",
         }
         new_user_name = input("Enter new username: ")
-        user_validation = self.validate_user_name(new_user_name)
+        user_validation = Users.validate_user_name(new_user_name)
         while user_validation in validate_username_dict:
             print(validate_username_dict[user_validation])
             new_user_name = input("Enter new username: ")
-            user_validation = self.validate_user_name(new_user_name)
+            user_validation = Users.validate_user_name(new_user_name)
         cursor.execute(
             f"UPDATE User SET username='{new_user_name}' where id='{id}'"
         )
         connection.commit()
         print('username changed')
-        select_action = int(input("For change username enter 1: \nFor change password enter 2: \nFor logout enter 3: "))
-        if select_action == 1:
+        select_action = input("For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: ")
+        while select_action not in ['1', '2', '-1']:
+            select_action = input(
+                "For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: "
+                "\nFor rate to movie enter 4: \nFor add comment to movie enter 5: ")
+        if select_action == '1':
             user_manager.change_user_name(id)
-        elif select_action == 2:
+        elif select_action == '2':
             user_manager.change_password(id)
-        elif select_action == 3:
+        elif select_action == '-1':
             user_manager.logout(id)
+        elif select_action == '4':
+            MovieRate.rate_to_movie(id)
+        elif select_action == '5':
+            Comment.add_comment_to_movie(id)
 
     # @user_login_decorator
-    def change_password(self, id: str) -> None:
+    @staticmethod
+    def change_password(id: str) -> None:
         """ this function for change username """
         new_password = input("Enter new password: ")
         validate_password_new_password = {-1: "enter password", -2: "password is invalid"}
-        new_password_validation = self.validate_password(new_password)
+        new_password_validation = Users.validate_password(new_password)
         while new_password_validation in validate_password_new_password:
             print(validate_password_new_password[new_password_validation])
             new_password = input("Enter new password: ")
-            new_password_validation = self.validate_password(new_password)
+            new_password_validation = Users.validate_password(new_password)
         confirm_password = input("Enter password again: ")
         validate_confirm_password = {-1: "enter password", -2: "password is invalid"}
-        confirm_password_validation = self.validate_password(confirm_password)
+        confirm_password_validation = Users.validate_password(confirm_password)
         while confirm_password_validation in validate_confirm_password:
             print(validate_confirm_password[confirm_password_validation])
             confirm_password = input("Enter password again: ")
-            confirm_password_validation = self.validate_password(confirm_password)
+            confirm_password_validation = Users.validate_password(confirm_password)
         while new_password != confirm_password:
             print("password not match")
-            self.change_password(id)
+            Users.change_password(id)
         cursor.execute(
-            f"UPDATE User SET password='{self.validate_password(confirm_password)}' where id='{id}'"
+            f"UPDATE User SET password='{Users.validate_password(confirm_password)}' where id='{id}'"
         )
         connection.commit()
         print("password changed")
-        select_action = int(input("For change username enter 1: \nFor change password enter 2: \nFor logout enter 3: "))
-        if select_action == 1:
+        select_action = input("For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: ")
+        while select_action not in ['1', '2', '-1']:
+            select_action = input(
+                "For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: "
+                "\nFor rate to movie enter 4: \nFor add comment to movie enter 5: ")
+        if select_action == '1':
             user_manager.change_user_name(id)
-        elif select_action == 2:
+        elif select_action == '2':
             user_manager.change_password(id)
-        elif select_action == 3:
+        elif select_action == '-1':
             user_manager.logout(id)
+        elif select_action == '4':
+            MovieRate.rate_to_movie(id)
+        elif select_action == '5':
+            Comment.add_comment_to_movie(id)
 
     @staticmethod
     def logout(id):
