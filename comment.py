@@ -70,4 +70,4 @@ class Comment:
 
 
 comment_manager = Comment()
-comment_manager.get_all_comments_of_movie()
+# comment_manager.get_all_comments_of_movie()
