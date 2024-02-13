@@ -144,6 +144,9 @@ class Users:
             f" password='{self.validate_password(password)}'"
         )
         results = cursor.fetchone()
+        if results is None:
+            print('Username or Password is wrong')
+            return False
         try:
             id = results[0]
             cursor.execute(f"UPDATE User SET logged_in='1' where username='{user_name}'")
