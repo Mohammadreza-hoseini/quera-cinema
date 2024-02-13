@@ -242,16 +242,22 @@ class Users:
 user_manager = Users()
 
 
-def main():
-    while True:
-        chose_login_or_register = int(
-            input(
-                "For register enter 1: \nFor login enter 2: "))
-        if chose_login_or_register == 1:
-            user_manager.register()
-        elif chose_login_or_register == 2:
-            user_manager.login()
+# def main():
+#     while True:
+#         chose_login_or_register = int(
+#             input(
+#                 "For register enter 1: \nFor login enter 2: "))
+#         if chose_login_or_register == 1:
+#             user_manager.register()
+#         elif chose_login_or_register == 2:
+#             user_manager.login()
+#
+#
+# if __name__ == "__main__":
+#     main()
 
 
-if __name__ == "__main__":
-    main()
+def chose_input(number):
+    number = int(number)
+    if number == 1:
+        user_manager.login()
