@@ -1,20 +1,41 @@
+import pickle
 import socket
 import threading
-from users import Users
-import pickle
 
+
+from bankaccount import BankAccount
+from users import Users
+from wallet import Wallet
 
 def handle_client(client_socket, addr):
     try:
         while True:
-            request = client_socket.recv(1024).decode("utf-8")
-            if request.lower() == "close":
-                client_socket.send("closed".encode("utf-8"))
-                break
-            if request.lower() == "register":
+            request = client_socket.recv(1024)
+            command, user_id = pickle.loads(request)
+            print("SSSSSSSSSS")
+            print(command, user_id)
+            if command == "1":  # register
                 register_func = Users.register
+                # convert to byte
                 pickled_function = pickle.dumps(register_func)
                 client_socket.send(pickled_function)
+
+            if command == "2": #login
+                register_func = Users.login
+                # convert to byte
+                pickled_function = pickle.dumps(register_func)
+                client_socket.send(pickled_function)
+            
+            if command == "3": #change username
+                register_func = Users.change_user_name
+                # convert to byte
+                pickled_function = pickle.dumps(register_func)
+                client_socket.send(pickled_function)
+            
+            
+            
+            
+
             print(f"Received: {request}")
             # convert and send accept response to the client
             response = "accepted"
@@ -27,7 +48,6 @@ def handle_client(client_socket, addr):
 
 
 def run_server():
-    print('begfair')
     server_ip = "localhost"
     port = 8000
     try:
@@ -39,7 +59,13 @@ def run_server():
         while True:
             client_socket, addr = server.accept()
             print(f"Accepted connection from {addr[0]}:{addr[1]}")
-            thread = threading.Thread(target=handle_client, args=(client_socket, addr,))
+            thread = threading.Thread(
+                target=handle_client,
+                args=(
+                    client_socket,
+                    addr,
+                ),
+            )
             thread.start()
     except Exception as e:
         print(f"Error: {e}")
