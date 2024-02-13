@@ -19,8 +19,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             break
         s.sendall(user_input.encode())
         
-        thread = s.recv(1024)
-        print(thread)
             
 
     print(f"client: {data}")

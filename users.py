@@ -235,11 +235,9 @@ user_manager = Users()
 
 
 def main(user_input):
-    return "mainnnnnn"
     if user_input == 1:
         user_manager.register()
     elif user_input == 2:
-        print("salam")
         user_manager.login()
 
 
