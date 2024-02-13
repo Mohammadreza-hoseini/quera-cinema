@@ -1,11 +1,11 @@
 import re
 import hashlib
 import uuid
-#from tests.test_db_connection import cnx as connection #connect to test local DB
-from connection import connection
-from rate_to_movies import MovieRate
-from comment import Comment
-from errors import InvalidUsernameOrPassword
+from tests.test_db_connection import cnx as connection #connect to test local DB
+#from connection import connection
+#from rate_to_movies import MovieRate
+#from comment import Comment
+#from errors import InvalidUsernameOrPassword
 
 # from decorator import user_login_decorator
 
@@ -15,8 +15,11 @@ cursor = connection.cursor()
 class Users:
 
     def __init__(self):
-        pass
-
+        self.validate_username_dict = {-1: "enter username",-2: "username is invalid",-3: "username exist"}
+        self.result = ""
+        self.validate_email_dict = {-1: "enter email",-2: "email is invalid",-3: "email exist"}
+        self.validate_phone_number_dict = {-1: "phone number is invalid"}
+        self.validate_password_dict = {-1: "enter password", -2: "password is invalid"}
     @staticmethod
     def validate_user_name(user_name: str) -> bool:
         """validate username"""
@@ -71,47 +74,53 @@ class Users:
             return -2
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
         return hashed_password
-
+       
     def register(self):
         """this function for register new user"""
-        validate_username_dict = {
-            -1: "enter username",
-            -2: "username is invalid",
-            -3: "username exist",
-        }
         user_name = input("Enter your username: ")
         user_validation = self.validate_user_name(user_name)
-        while user_validation in validate_username_dict:
-            print(validate_username_dict[user_validation])
-            user_name = input("Enter your username: ")
-            user_validation = self.validate_user_name(user_name)
-        validate_email_dict = {
-            -1: "enter email",
-            -2: "email is invalid",
-            -3: "email exist",
-        }
+        if self.validate_username_dict.get(user_validation):
+            self.result = self.validate_username_dict[user_validation]
+            print(self.result)
+            return self.result
+        #while user_validation in self.validate_username_dict:
+            #self.result = self.validate_username_dict[user_validation]
+            #print(self.result)
+            #user_name = input("Enter your username: ")
+            #user_validation = self.validate_user_name(user_name)
+        
         user_email = input("Enter your email: ")
         email_validation = self.validate_email(user_email)
-        while email_validation in validate_email_dict:
-            print(validate_email_dict[email_validation])
-            user_email = input("Enter your email: ")
-            email_validation = self.validate_email(user_email)
+        if self.validate_email_dict.get(email_validation):
+            self.result = self.validate_email_dict[email_validation]
+            print(self.result)
+            return self.result
+        #while email_validation in validate_email_dict:
+            #print(validate_email_dict[email_validation])
+            #user_email = input("Enter your email: ")
+            #email_validation = self.validate_email(user_email)
         phone_number = input("Enter your phone number: ")
         if phone_number == "":
             phone_number = None
-        validate_phone_number = {-1: "phone number is invalid"}
         phone_number_validation = self.validate_phone_number(phone_number)
-        while phone_number_validation in validate_phone_number:
-            print(validate_phone_number[phone_number_validation])
-            phone_number = input("Enter your phone number: ")
-            phone_number_validation = self.validate_phone_number(phone_number)
+        if self.validate_phone_number_dict.get(phone_number_validation):
+            self.result = self.validate_phone_number_dict[phone_number_validation]
+            print(self.result)
+            return self.result
+        #while phone_number_validation in validate_phone_number:
+            #print(validate_phone_number[phone_number_validation])
+            #phone_number = input("Enter your phone number: ")
+            #phone_number_validation = self.validate_phone_number(phone_number)
         password = input("Enter your password: ")
-        validate_password = {-1: "enter password", -2: "password is invalid"}
         password_validation = self.validate_password(password)
-        while password_validation in validate_password:
-            print(validate_password[password_validation])
-            password = input("Enter your password: ")
-            password_validation = self.validate_password(password)
+        if self.validate_password_dict.get(password_validation):
+            self.result = self.validate_password_dict[password_validation]
+            print(self.result)
+            return self.result
+        #while password_validation in validate_password:
+            #print(validate_password[password_validation])
+            #password = input("Enter your password: ")
+            #password_validation = self.validate_password(password)
         birth_date = input("Enter your birth_date with this format 0000-00-00: ")
         id = uuid.uuid4()
 

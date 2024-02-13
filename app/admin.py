@@ -1,9 +1,9 @@
 import hashlib
 import re
 import uuid
-#from tests.test_db_connection import cnx as connection #connect to test local DB
-from connection import connection
-from users import Users
+from tests.test_db_connection import cnx as connection #connect to test local DB
+#from connection import connection
+from .users import Users
 
 # from decorator import admin_login_decorator
 
@@ -15,7 +15,7 @@ class Admin:
     def __init__(self):
         pass
 
-    @staticmethod
+    #@staticmethod
     def register() -> None:
         """ register new admin """
         validate_username_dict = {-1: 'enter username', -2: 'username is invalid', -3: 'username exist'}
@@ -176,8 +176,8 @@ class Admin:
 
 
 admin_manager = Admin()
-
+"""
 while True:
     chose_login_or_register = int(input("For register enter 1: "))
     if chose_login_or_register == 1:
-        admin_manager.register()
+        admin_manager.register()"""
