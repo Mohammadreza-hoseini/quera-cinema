@@ -1,0 +1,12 @@
+-1: Logout
+1: Register
+2: Login
+####################
+3. change username
+4. change password
+5. rate movie
+6. rate theater
+7. movie comment list
+8. add comment
+9. wallet
+10. bank
