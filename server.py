@@ -1,29 +1,49 @@
 import socket
-import request_handler
-
-HOST = "127.0.0.1"
-PORT = 8000
-
+import threading
+from users import Users
+import pickle
 
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    s.listen()
-    conn, addr = s.accept()
-    with conn:
-        print(f"connected by {addr}")
+def handle_client(client_socket, addr):
+    try:
         while True:
-            
-            user_input = conn.recv(1024).decode()
-            print(f"server {user_input}")
-            
-            thread = request_handler.main(user_input)
-            thread.start()
-            thread.join()
-            
-            
-            
-            # request_handler.main(user_input)
-            if not user_input:
+            request = client_socket.recv(1024).decode("utf-8")
+            if request.lower() == "close":
+                client_socket.send("closed".encode("utf-8"))
                 break
-            # conn.sendall(thread)
+            if request.lower() == "register":
+                register_func = Users.register
+                pickled_function = pickle.dumps(register_func)
+                client_socket.send(pickled_function)
+            print(f"Received: {request}")
+            # convert and send accept response to the client
+            response = "accepted"
+            client_socket.send(response.encode("utf-8"))
+    except Exception as e:
+        print(f"Error when hanlding client: {e}")
+    finally:
+        client_socket.close()
+        print(f"Connection to client ({addr[0]}:{addr[1]}) closed")
+
+
+def run_server():
+    server_ip = "localhost"
+    port = 8000 
+    try:
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.bind((server_ip, port))
+        server.listen()
+        print(f"Listening on {server_ip}:{port}")
+
+        while True:
+            client_socket, addr = server.accept()
+            print(f"Accepted connection from {addr[0]}:{addr[1]}")
+            thread = threading.Thread(target=handle_client, args=(client_socket, addr,))
+            thread.start()
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        server.close()
+
+
+run_server()

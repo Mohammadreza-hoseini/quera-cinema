@@ -1,24 +1,33 @@
 import socket
+import pickle
 
-HOST = "127.0.0.1"
-PORT = 8000
+def run_client():
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((HOST, PORT))
-    while True:
-        user_input = "initial_input"
-        menu = """
-        1: Register
-        2: Login
-        3: Logout
-        """
-        print(menu)
-        while user_input not in ['1', '2', '3']:
-            user_input = input()
-        if user_input == '3':
-            break
-        s.sendall(user_input.encode())
-        
+    server_ip = "localhost"
+    server_port = 8000
+    client.connect((server_ip, server_port))
+
+    try:
+        while True:
+            msg = input("Enter message: ")
+            client.send(msg.encode("utf-8")[:1024])
+
+            response = client.recv(1024)
+            print("Salam")
+            response = pickle.loads(response)
             
+            response()
 
-    print(f"client: {data}")
+            if response.lower() == "closed":
+                break
+
+            print(f"Received: {response}")
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        client.close()
+        print("Connection to server closed")
+
+
+run_client()
