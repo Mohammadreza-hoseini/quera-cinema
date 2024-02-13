@@ -7,6 +7,8 @@ from connection import connection
 from rate_to_movies import MovieRate
 from comment import Comment
 from errors import InvalidUsernameOrPassword, InvalidDate
+from wallet import Wallet
+from help_function import is_float
 
 # from decorator import user_login_decorator
 
@@ -128,21 +130,23 @@ class Users:
                        f" 'user', '1')")
         connection.commit()
         print("registered complete")
-        select_action = input("For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: ")
-        while select_action not in ['1', '2', '-1']:
-            select_action = input(
-                "For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: "
-                "\nFor rate to movie enter 4: \nFor add comment to movie enter 5: ")
-        if select_action == '1':
-            user_manager.change_user_name(id)
-        elif select_action == '2':
-            user_manager.change_password(id)
-        elif select_action == '-1':
-            user_manager.logout(id)
-        elif select_action == '4':
-            MovieRate.rate_to_movie(id)
-        elif select_action == '5':
-            Comment.add_comment_to_movie(id)
+        Wallet.create_wallet(id)
+        return id
+        # select_action = input("For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: ")
+        # while select_action not in ['1', '2', '-1']:
+        #     select_action = input(
+        #         "For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: "
+        #         "\nFor rate to movie enter 4: \nFor add comment to movie enter 5: ")
+        # if select_action == '1':
+        #     user_manager.change_user_name(id)
+        # elif select_action == '2':
+        #     user_manager.change_password(id)
+        # elif select_action == '-1':
+        #     user_manager.logout(id)
+        # elif select_action == '4':
+        #     MovieRate.rate_to_movie(id)
+        # elif select_action == '5':
+        #     Comment.add_comment_to_movie(id)
 
     @staticmethod
     def login():
@@ -175,29 +179,45 @@ class Users:
         cursor.execute(f"UPDATE User SET logged_in='1' where username='{user_name}'")
         connection.commit()
         print("you are logged in")
-        select_action = input(
-            "For change username enter 1: "
-            "\nFor change password enter 2: "
-            "\nFor logout enter -1: "
-            "\nFor rate to movie enter 4: "
-            "\nFor add comment to movie enter 5: ")
-        while select_action not in ['1', '2', '-1', '4', '5']:
-            select_action = input(
-                "For change username enter 1: "
-                "\nFor change password enter 2: "
-                "\nFor logout enter -1: "
-                "\nFor rate to movie enter 4: "
-                "\nFor add comment to movie enter 5: ")
-        if select_action == '1':
-            user_manager.change_user_name(id)
-        elif select_action == '2':
-            user_manager.change_password(id)
-        elif select_action == '-1':
-            user_manager.logout(id)
-        elif select_action == '4':
-            MovieRate.rate_to_movie(id)
-        elif select_action == '5':
-            Comment.add_comment_to_movie(id)
+        return id
+        # select_action = input(
+        #     "For change username enter 1: "
+        #     "\nFor change password enter 2: "
+        #     "\nFor logout enter -1: "
+        #     "\nFor rate to movie enter 4: "
+        #     "\nFor add comment to movie enter 5: "
+        #     "\nFor Wallet enter 6: ")
+        # while select_action not in ['1', '2', '-1', '4', '5', '6']:
+        #     select_action = input(
+        #         "For change username enter 1: "
+        #         "\nFor change password enter 2: "
+        #         "\nFor logout enter -1: "
+        #         "\nFor rate to movie enter 4: "
+        #         "\nFor add comment to movie enter 5: "
+        #         "\nFor Wallet enter 6: ")
+        # if select_action == '1':
+        #     user_manager.change_user_name(id)
+        # elif select_action == '2':
+        #     user_manager.change_password(id)
+        # elif select_action == '-1':
+        #     user_manager.logout(id)
+        # elif select_action == '4':
+        #     MovieRate.rate_to_movie(id)
+        # elif select_action == '5':
+        #     Comment.add_comment_to_movie(id)
+        # elif select_action == '6':
+        #     select_action = input(
+        #             'For wallet balance enter 1: \nFor pay from wallet enter 2: ')
+        #     while select_action not in ['1', '2']:
+        #         select_action = input(
+        #             'For wallet balance enter 1: \nFor pay from wallet enter 2: ')
+        #     if select_action == '1':
+        #         Wallet.wallet_balance(id)
+        #     elif select_action == '2':
+        #         transaction_amount = input('Enter amount of transaction')
+        #         while not is_float(transaction_amount):
+        #             transaction_amount = input('Enter amount of transaction')
+        #         Wallet.pay_from_wallet(id, float(transaction_amount))
 
     # @user_login_decorator
     @staticmethod
@@ -219,21 +239,21 @@ class Users:
         )
         connection.commit()
         print('username changed')
-        select_action = input("For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: ")
-        while select_action not in ['1', '2', '-1']:
-            select_action = input(
-                "For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: "
-                "\nFor rate to movie enter 4: \nFor add comment to movie enter 5: ")
-        if select_action == '1':
-            user_manager.change_user_name(id)
-        elif select_action == '2':
-            user_manager.change_password(id)
-        elif select_action == '-1':
-            user_manager.logout(id)
-        elif select_action == '4':
-            MovieRate.rate_to_movie(id)
-        elif select_action == '5':
-            Comment.add_comment_to_movie(id)
+        # select_action = input("For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: ")
+        # while select_action not in ['1', '2', '-1']:
+        #     select_action = input(
+        #         "For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: "
+        #         "\nFor rate to movie enter 4: \nFor add comment to movie enter 5: ")
+        # if select_action == '1':
+        #     user_manager.change_user_name(id)
+        # elif select_action == '2':
+        #     user_manager.change_password(id)
+        # elif select_action == '-1':
+        #     user_manager.logout(id)
+        # elif select_action == '4':
+        #     MovieRate.rate_to_movie(id)
+        # elif select_action == '5':
+        #     Comment.add_comment_to_movie(id)
 
     # @user_login_decorator
     @staticmethod
@@ -261,21 +281,21 @@ class Users:
         )
         connection.commit()
         print("password changed")
-        select_action = input("For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: ")
-        while select_action not in ['1', '2', '-1']:
-            select_action = input(
-                "For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: "
-                "\nFor rate to movie enter 4: \nFor add comment to movie enter 5: ")
-        if select_action == '1':
-            user_manager.change_user_name(id)
-        elif select_action == '2':
-            user_manager.change_password(id)
-        elif select_action == '-1':
-            user_manager.logout(id)
-        elif select_action == '4':
-            MovieRate.rate_to_movie(id)
-        elif select_action == '5':
-            Comment.add_comment_to_movie(id)
+        # select_action = input("For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: ")
+        # while select_action not in ['1', '2', '-1']:
+        #     select_action = input(
+        #         "For change username enter 1: \nFor change password enter 2: \nFor logout enter -1: "
+        #         "\nFor rate to movie enter 4: \nFor add comment to movie enter 5: ")
+        # if select_action == '1':
+        #     user_manager.change_user_name(id)
+        # elif select_action == '2':
+        #     user_manager.change_password(id)
+        # elif select_action == '-1':
+        #     user_manager.logout(id)
+        # elif select_action == '4':
+        #     MovieRate.rate_to_movie(id)
+        # elif select_action == '5':
+        #     Comment.add_comment_to_movie(id)
 
     @staticmethod
     def logout(id):
@@ -299,9 +319,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-def chose_input(number):
-    number = int(number)
-    if number == 1:
-        user_manager.login()
