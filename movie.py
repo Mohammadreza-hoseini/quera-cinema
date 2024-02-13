@@ -11,19 +11,25 @@ class Movie:
         self.name = name
         self.age_limit = age_limit
 
-    def create_movie(self):
-        cursor.execute(f'select name from Movie where name like "%{self.name}%"')
-        result = cursor.fetchone()
+    @staticmethod
+    def movie_list():
+        cursor.execute(
+            f"""SELECT name, average_rate, age_limit, price FROM Movie ORDER BY average_rate DESC"""
+        )
+        data = cursor.fetchall()
 
-        if result is not None and self.name in result:
-            return "Already exists"
-        else:
-            print("hi ")
-            # return self.on_screen_count()
-            cursor.execute(
-                f'insert into Movie values (uuid(), "{self.name.__repr__()}",-1 , "{self.on_screen_count()}", "{self.age_limit}")'
-            )
-            connection.commit()
+        movie_list = []
+        for movie_tuple in data:
+            name, average_rate, age_limit, price = movie_tuple
+            movie_data = {
+                "name": name,
+                "average_rate": average_rate,
+                "age_limit": age_limit,
+                "price": price,
+            }
+            movie_list.append(movie_data)
+        print(movie_list)
+        return movie_list
 
     def average_rate(self) -> str:
         try:
