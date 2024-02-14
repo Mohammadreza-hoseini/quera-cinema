@@ -47,6 +47,7 @@ def run_client():
         while True:
 
             def login_register():
+                print("in_client: loginRegister")
                 command = first_menu()
 
                 # logout
@@ -65,29 +66,32 @@ def run_client():
                 return user_id
 
             def application(user_id):
+                print("in_client: application start")
                 command = second_menu()
                 if command == "-1":
                     return "logout"
 
-                print("UUUUUUUUUUUU", user_id)
                 data_tuple = (command, user_id)
                 data = pickle.dumps(data_tuple)
                 client.send(data)
+                print("in_client: application data sent")
+                
 
                 response = client.recv(1024)
-                print("injaaaa")
-                print(type(pickle.loads(response)))
                 response_func = pickle.loads(response)
+                print("in_client: application recv server response")
 
-                print("baba3")
+
                 response_func(user_id)
 
             res1 = login_register()
             if res1 == "logout":
+                client.close()
                 break
             user_id = res1
             res2 = application(user_id)
             if res2 == "logout":
+                client.close()
                 break
 
     except Exception as e:
