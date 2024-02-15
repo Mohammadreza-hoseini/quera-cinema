@@ -2,6 +2,8 @@ import socket
 import pickle
 
 
+from help_function import is_float
+
 # for login | register | logout
 def first_menu():
     menu = """
@@ -41,9 +43,11 @@ def run_client():
 
     server_ip = "localhost"
     server_port = 8000
+    print("run_client")
     client.connect((server_ip, server_port))
 
     try:
+        login_status = 0
         while True:
 
             def login_register():
@@ -61,6 +65,10 @@ def run_client():
 
                 response = client.recv(1024)
                 response_func = pickle.loads(response)
+                
+                print("NAAAAAAAAAAAAAAAme")
+                print(response_func.__name__)
+                
 
                 user_id = response_func()
                 return user_id
@@ -81,20 +89,42 @@ def run_client():
                 response_func = pickle.loads(response)
                 print("in_client: application recv server response")
 
+                # give function inputs based on its name
+                func_name = response_func.__name__ 
+                
+                if func_name in ["change_password", "change_user_name"]:
+                    response_func(user_id)
+                    
+                # handle wallet
+                if func_name == "wallet_menu":
+                    wallet_operation = response_func()
+                    if wallet_operation == -1:
+                        return "logout"
+                    if wallet_operation.__name__ == "pay_from_wallet":
+                        transaction_amount = None
+                        while transaction_amount is None or not is_float(transaction_amount):
+                            print("Transaction_amount should be float")
+                            transaction_amount = input("Enter transaction amount: ")
+                        wallet_operation(user_id, float(transaction_amount))
+                    if wallet_operation.__name__ == "wallet_balance":
+                        current_wallet_balance = wallet_operation(user_id)
+                        print("current wallet balance: ", current_wallet_balance)
+                        
 
-                response_func(user_id)
-
-            res1 = login_register()
-            if res1 == "logout":
-                client.close()
-                break
-            user_id = res1
+            if login_status == 0:
+                res1 = login_register()
+                if res1 == "logout":
+                    break
+                else:
+                    login_status = 1
+                user_id = res1
             res2 = application(user_id)
             if res2 == "logout":
-                client.close()
                 break
+        client.close()
 
     except Exception as e:
+        print("after breakkkk")
         print(f"Error: {e}")
     finally:
         client.close()
