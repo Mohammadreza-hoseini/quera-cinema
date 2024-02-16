@@ -3,7 +3,7 @@ import socket
 import threading
 
 
-from bankaccount import BankAccount
+from bankaccount import BankAccount, bank_menu
 from users import Users
 from wallet import Wallet, wallet_menu
 
@@ -47,6 +47,12 @@ def request_thread(client_socket, addr, data):
         wallet_menu_func = wallet_menu
         # convert to byte
         pickled_function = pickle.dumps(wallet_menu_func)
+        client_socket.send(pickled_function)
+    
+    if command == "10":  # bank #TODO
+        bank_menu_func = bank_menu
+        # convert to byte
+        pickled_function = pickle.dumps(bank_menu)
         client_socket.send(pickled_function)
     
     print("return request_thread")
