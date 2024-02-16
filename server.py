@@ -6,12 +6,14 @@ import threading
 from bankaccount import BankAccount, bank_menu
 from users import Users
 from wallet import Wallet, wallet_menu
+from rate_to_movies import MovieRate
+from theater import Theater
 
 # thread_list = []
 
 
 def request_thread(client_socket, addr, data):
-    print("in_server: request_thread")
+    # print("in_server: request_thread")
 
     if isinstance(data, tuple):
         command, user_id = data
@@ -37,9 +39,21 @@ def request_thread(client_socket, addr, data):
         client_socket.send(pickled_function)
     
     if command == "4":  # change password
-        change_username_func = Users.change_password
+        change_password_func = Users.change_password
         # convert to byte
-        pickled_function = pickle.dumps(change_username_func)
+        pickled_function = pickle.dumps(change_password_func)
+        client_socket.send(pickled_function)
+        
+        
+    if command == "5":  # rate movie
+        rate_func = MovieRate.rate_to_movie
+        # convert to byte
+        pickled_function = pickle.dumps(rate_func)
+        client_socket.send(pickled_function)
+    if command == "6":  # rate theater
+        rate_func = Theater.rate_theater
+        # convert to byte
+        pickled_function = pickle.dumps(rate_func)
         client_socket.send(pickled_function)
         
         
@@ -55,31 +69,31 @@ def request_thread(client_socket, addr, data):
         pickled_function = pickle.dumps(bank_menu)
         client_socket.send(pickled_function)
     
-    print("return request_thread")
-    return
+    # print("return request_thread")
+    # return
 
 
 def handle_client(client_socket, addr):
     while True:
         try:
-            print("waiting for req")
+            # print("waiting for req")
             request = client_socket.recv(1024)
             if not request:
                 break
             data = pickle.loads(request)
 
-            print("in_server: handle client", data)
+            # print("in_server: handle client", data)
 
             thread = threading.Thread(
                 target=request_thread,
                 args=(client_socket, addr, data),
             )
             # thread_list.append(thread)
-            print("thread start")
+            # print("thread start")
             thread.start()
-            print("thread waiting")
+            # print("thread waiting")
             thread.join()
-            print("thread finished")
+            # print("thread finished")
 
         except Exception as e:
             print(f"Error when hanlding client: {e}")
@@ -104,7 +118,7 @@ def run_server():
         print(f"Listening on {server_ip}:{port}")
 
         while True:
-            print(1)
+            # print(1)
             client_socket, addr = server.accept()
             print(f"Accepted connection from {addr[0]}:{addr[1]}")
             # handle_client(client_socket, addr)
