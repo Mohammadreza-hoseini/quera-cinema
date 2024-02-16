@@ -46,7 +46,7 @@ def run_client():
 
     server_ip = "localhost"
     server_port = 8000
-    print("run_client")
+    # print("run_client")
     client.connect((server_ip, server_port))
 
     try:
@@ -55,7 +55,7 @@ def run_client():
         while True:
 
             def login_register():
-                print("in_client: loginRegister")
+                # print("in_client: loginRegister")
                 command = first_menu()
 
                 # logout
@@ -70,8 +70,8 @@ def run_client():
                 response = client.recv(1024)
                 response_func = pickle.loads(response)
                 
-                print("NAAAAAAAAAAAAAAAme")
-                print(response_func.__name__)
+                # print("NAAAAAAAAAAAAAAAme")
+                # print(response_func.__name__)
                 
 
                 user_id = response_func()
@@ -79,7 +79,7 @@ def run_client():
 
             def application(user_id):
                 nonlocal bank_login_status
-                print("in_client: application start")
+                # print("in_client: application start")
                 command = second_menu()
                 if command == "-1":
                     return "logout"
@@ -96,18 +96,18 @@ def run_client():
                 data_tuple = (command, user_id)
                 data = pickle.dumps(data_tuple)
                 client.send(data)
-                print("in_client: application data sent")
+                # print("in_client: application data sent")
                 
-                print("CCCCCCCCCCCCCCCCCC", card_number)
 
                 response = client.recv(1024)
                 response_func = pickle.loads(response)
-                print("in_client: application recv server response")
+                # print("in_client: application recv server response")
 
                 # give function inputs based on its name
                 func_name = response_func.__name__ 
                 
-                if func_name in ["change_password", "change_user_name"]:
+                if func_name in ["change_password", "change_user_name", "rate_to_movie", "rate_theater"]:
+                    
                     response_func(user_id)
                     
                 # handle wallet
@@ -159,7 +159,7 @@ def run_client():
         client.close()
 
     except Exception as e:
-        print("after breakkkk")
+        # print("after breakkkk")
         print(f"Error: {e}")
     finally:
         client.close()
