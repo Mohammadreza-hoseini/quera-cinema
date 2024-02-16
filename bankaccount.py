@@ -28,11 +28,10 @@ class BankAccount:
         print("#### Login Bank Account ####")
 
         user_bank_accounts = cls.get_user_accounts(user_id)
-        # print(user_bank_accounts)
 
         if user_bank_accounts == -1:
             print("User doesn't have account: ")
-            return
+            return -2
 
         card_number = input("Enter card number: ")
 
@@ -52,6 +51,13 @@ class BankAccount:
                 os.system("cls")
                 print("Invalid card number")
                 card_number = input("Enter card number: ")
+                while not card_number.isdigit():
+                    os.system("cls")
+                    print("Invalid card_number")
+                    card_number = input("Enter card number: ")
+                card_number = int(card_number)
+            else:
+                break
 
         password = input("Enter your bank password: ")
 
@@ -82,6 +88,7 @@ class BankAccount:
         )
         connection.commit()
         print("Logged in")
+        return card_number
 
     @staticmethod
     def bank_account_balance(card_number: int) -> float:
@@ -96,7 +103,7 @@ class BankAccount:
         return current_amount
 
     @staticmethod
-    def __charge_wallet(
+    def charge_wallet(
         user_id: str, card_number: int, transaction_amount: float
     ) -> None:
         """_summary_
@@ -112,16 +119,17 @@ class BankAccount:
         cursor.execute(
             f"SELECT amount FROM Wallet WHERE user_id = {user_id.__repr__()}"
         )
-        current_wallet_amount = cursor.fetchone()[0]
+        current_wallet_amount = float(cursor.fetchone()[0])
 
         new_wallet_amount = current_wallet_amount + transaction_amount
         cursor.execute(
             f"UPDATE Wallet SET amount = {new_wallet_amount} WHERE user_id = {user_id.__repr__()}"
         )
         connection.commit()
+        print("wallet charged")
 
     @classmethod
-    def __withdrawal(cls, card_number: int, transaction_amount: float) -> None:
+    def withdrawal(cls, card_number: int, transaction_amount: float) -> None:
         """_summary_
         Subtract money from account based on user subscription
         """
@@ -131,9 +139,10 @@ class BankAccount:
             f"""UPDATE BankAccount SET amount={updated_amount} WHERE card_number = {card_number}"""
         )
         connection.commit()
+        print("withdrawal Done")
 
     @classmethod
-    def __deposit(cls, card_number: int, transaction_amount: float) -> float:
+    def deposit(cls, card_number: int, transaction_amount: float) -> float:
         """_summary_
         add money to account
         """
@@ -143,14 +152,40 @@ class BankAccount:
             f"UPDATE BankAccount SET amount = {updated_amount} WHERE card_number = {card_number}"
         )
         connection.commit()
+        print("deposit Done")
 
     @classmethod
-    def __transfer(
-        cls, card_number: int, transaction_amount: float, card_number2: int
-    ) -> None:
+    def transfer(cls, card_number: int, transaction_amount: float) -> None:
         """_summary_
         Transfer money from one account to another account
         """
+        card_number2 = input("Second card_number: ")
+
+        while not card_number2.isdigit():
+            os.system("cls")
+            print("Invalid card_number")
+            card_number2 = input("Second card_number: ")
+        card_number2 = int(card_number2)
+        cursor.execute(
+            f"""SELECT 1 FROM BankAccount WHERE card_number={card_number2}"""
+        )
+        data = cursor.fetchone()
+        while data is None:
+            print("Second card_number is invalid")
+            card_number2 = input("Second card_number: ")
+            while not card_number2.isdigit():
+                os.system("cls")
+                print("Invalid card_number")
+                card_number2 = input("Second card_number: ")
+            card_number2 = int(card_number2)
+            cursor.execute(
+                f"""SELECT 1 FROM BankAccount WHERE card_number={card_number2}"""
+            )
+            data = cursor.fetchone()
+
+        if card_number == card_number2:
+            print("You've entered the same card_number")
+            return
 
         # subtract from card_number1
         current_amount_account1 = cls.bank_account_balance(card_number)
@@ -167,70 +202,7 @@ class BankAccount:
         )
 
         connection.commit()
-
-    # transaction table? #TODO
-    @classmethod
-    def commit_transaction(
-        cls,
-        user_id: str,
-        card_number: int,
-        transaction_amount: float,
-        card_number2: int = -1,
-    ) -> None:
-        """_summary_
-        transaction_type:  1: withdrawal | 2: transfer to another account | 3: charge wallet | 4: deposit
-        """
-        print(
-            f"""####Allowed operations####
-              1: withdrawal
-              2: transfer
-              3: charge_wallet
-              4: deposit"""
-        )
-
-        ALLOWED_OPERATIONS = {
-            1: "withdrawal",
-            2: "transfer",
-            3: "charge_wallet",
-            4: "deposit",
-        }
-
-        transaction_type = input("Operation: ")
-        while (not transaction_type.isdigit()) or (
-            int(transaction_type) not in ALLOWED_OPERATIONS
-        ):
-            os.system("cls")
-            print("Invalid operation")
-            print(
-                f"""####Allowed operations####
-              1: withdrawal
-              2: transfer
-              3: charge_wallet
-              4: deposit"""
-            )
-            transaction_type = input("Operation: ")
-        transaction_type = int(transaction_type)
-
-        if transaction_type in [1, 2, 3]:
-            current_amount = cls.bank_account_balance(card_number)
-            valid = current_amount >= transaction_amount
-            if valid:
-                if transaction_type == 1:
-                    cls.__withdrawal(card_number, transaction_amount)
-                if transaction_type == 2:
-                    if card_number2 == -1:
-                        print("Second_card_number not given\n")
-                    else:
-                        cls.__transfer(card_number, transaction_amount, card_number2)
-                if transaction_type == 3:
-                    cls.__charge_wallet(user_id, card_number, transaction_amount)
-                print("Successful transactrion\n")
-                # Database log #TODO: LOG
-            else:
-                print("Not enough money\n")
-        else:
-            cls.__deposit(card_number, transaction_amount)
-            print("Successful transactrion\n")
+        print("transfer Done")
 
     # DONE
     @staticmethod
@@ -289,6 +261,53 @@ class BankAccount:
         pass
 
 
+def bank_menu():
+    print(
+        f"""####Allowed operations####
+            -1: Logout
+            1: withdrawal
+            2: transfer
+            3: charge_wallet
+            4: deposit"""
+    )
+
+    ALLOWED_OPERATIONS = {
+        -1: "Logout",
+        1: "withdrawal",
+        2: "transfer",
+        3: "charge_wallet",
+        4: "deposit",
+    }
+
+    transaction_type = input("Bank Operation: ")
+    while (not transaction_type.isdigit() and transaction_type != "-1") or (
+        int(transaction_type) not in ALLOWED_OPERATIONS
+    ):
+        os.system("cls")
+        print("Invalid operation", transaction_type)
+        print(
+            f"""####Allowed operations####
+            -1: Logout
+            1: withdrawal
+            2: transfer
+            3: charge_wallet
+            4: deposit"""
+        )
+        transaction_type = input("Bank Operation: ")
+    transaction_type = int(transaction_type)
+
+    if transaction_type == -1:  # logout from bank account
+        return -1
+    if transaction_type == 1:
+        return BankAccount.withdrawal
+    if transaction_type == 2:
+        return BankAccount.transfer
+    if transaction_type == 3:
+        return BankAccount.charge_wallet
+    if transaction_type == 4:
+        return BankAccount.deposit
+
+
 if __name__ == "__main__":
     ############## test:
     bk1 = BankAccount()
@@ -297,27 +316,7 @@ if __name__ == "__main__":
     #     "c61e4977-aeaa-4721-a72d-bff5a83a47d5", 78.59
     # )
 
-    bk1.commit_transaction(
-        user_id="a75d1ce3-78dc-4e60-be8c-5b90c00b09cb",
-        card_number=6538612319900380,
-        transaction_amount=2,
-        card_number2=6859275337830227,
-    )
-
     # bk1.login("a75d1ce3-78dc-4e60-be8c-5b90c00b09cb")
 
-    # bk1.commit_transaction(
-    #     user_id="c599b937-c273-11ee-9027-0242ac150202",
-    #     card_number=7557812553883616,
-    #     transaction_type=4,
-    #     transaction_amount=100,
-    # )
-
-    # bk1.commit_transaction(
-    #     user_id="c599b937-c273-11ee-9027-0242ac150202",
-    #     card_number=7557812553883616,
-    #     transaction_type=2,
-    #     transaction_amount=10,
-    #     card_number2=7939441481282623,
-    # )
 # ght23@jsE
+# 6538612319900344
