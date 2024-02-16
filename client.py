@@ -2,7 +2,10 @@ import socket
 import pickle
 
 
+from bankaccount import BankAccount 
 from help_function import is_float
+
+bank_login = BankAccount.login
 
 # for login | register | logout
 def first_menu():
@@ -48,6 +51,7 @@ def run_client():
 
     try:
         login_status = 0
+        bank_login_status = 0
         while True:
 
             def login_register():
@@ -74,16 +78,27 @@ def run_client():
                 return user_id
 
             def application(user_id):
+                nonlocal bank_login_status
                 print("in_client: application start")
                 command = second_menu()
                 if command == "-1":
                     return "logout"
+                
+                # bank
+                if command == "10" and bank_login_status == 0: # not logged in bank
+                    data = bank_login(user_id)
+                    if data == -2: # user doesn't have bank account
+                        return 
+                    else:
+                        card_number = data 
+                        bank_login_status = 1
 
                 data_tuple = (command, user_id)
                 data = pickle.dumps(data_tuple)
                 client.send(data)
                 print("in_client: application data sent")
                 
+                print("CCCCCCCCCCCCCCCCCC", card_number)
 
                 response = client.recv(1024)
                 response_func = pickle.loads(response)
@@ -110,7 +125,27 @@ def run_client():
                         current_wallet_balance = wallet_operation(user_id)
                         print("current wallet balance: ", current_wallet_balance)
                         
-
+                # handle bank_account
+                if func_name == "bank_menu":
+                    bank_operation = response_func()
+                    
+                    if bank_operation == -1:
+                        bank_login_status = 0
+                        print("Logged out of bank account")
+                        return
+                    
+                    transaction_amount = None
+                    while transaction_amount is None or not is_float(transaction_amount):
+                        print("Transaction_amount should be float")
+                        transaction_amount = input("Enter transaction amount: ")
+                    transaction_amount = float(transaction_amount)
+                    
+                    if bank_operation.__name__ == "charge_wallet":
+                        bank_operation(user_id, card_number, transaction_amount)
+                    else:
+                        bank_operation(card_number, transaction_amount)
+                    
+                    
             if login_status == 0:
                 res1 = login_register()
                 if res1 == "logout":
