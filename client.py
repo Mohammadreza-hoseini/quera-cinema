@@ -28,7 +28,7 @@ def second_menu():
             4. change password
             5. rate movie
             6. rate theater
-            7. movie comment list
+            7. movie list
             8. add comment
             9. wallet
             10. bank

@@ -50,6 +50,10 @@ class Movie:
         return self.name
 
 
+def movie_menu():
+    pass
+
+
 if __name__ == "__main__":
     a = Movie()
     a.movie_list()
