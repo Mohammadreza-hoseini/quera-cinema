@@ -41,7 +41,7 @@ class Wallet:
 
         current_wallet_amount = cls.wallet_balance(user_id)
         if transaction_amount > current_wallet_amount:
-            print("Not enough money")
+            print("Not enough money in wallet")
         else:
             new_wallet_amount = current_wallet_amount - transaction_amount
             cursor.execute(
@@ -52,3 +52,21 @@ class Wallet:
 
     def __str__(self):
         pass
+
+
+def wallet_menu():
+    menu = """
+            -1. Logout
+            1. get wallet balance
+            2. pay_from_wallet
+            """
+    command = None
+    while command not in ["1", "2", "-1"]:
+        print(menu)
+        command = input("Enter command: ")
+    if command == "1":
+        return Wallet.wallet_balance
+    if command == '2':
+        return Wallet.pay_from_wallet
+    if command == "-1":
+        return -1

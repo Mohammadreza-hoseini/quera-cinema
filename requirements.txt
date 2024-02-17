@@ -1,5 +1,4 @@
 mysql-connector==2.2.9
-python-dotenv==1.0.1
 redis==5.0.1
 coverage==7.4.1
 exceptiongroup==1.2.0
