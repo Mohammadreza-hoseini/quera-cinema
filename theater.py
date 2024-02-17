@@ -34,21 +34,18 @@ class Theater:
         )
         return cursor.fetchone()[0]
 
-
     @staticmethod
     def rate_theater(user_id: str) -> None:
-"""
-Add user's rate for theater
-rate can be 1, 2, 3, 4, 5
-"""
+        """
+        Add user's rate for theater
+        rate can be 1, 2, 3, 4, 5
+        """
 
         rate = input("Enter your rate: ")
         valid_rates = ["1", "2", "3", "4", "5"]
         while rate not in valid_rates:
             print("Rate should be from 1 to 5")
             rate = input("Enter your rate: ")
-
-
 
         theater_name = input("Enter name of theater: ")
         while theater_name == "" or theater_name is None:
@@ -64,20 +61,17 @@ rate can be 1, 2, 3, 4, 5
             result = cursor.fetchone()
         theater_id = result[0]
 
+        # Check whether this user rated this theater before
+        cursor.execute(
+            f"""SELECT 1 FROM TheaterRateTable WHERE theater_id={theater_id.__repr__()} AND user_id={user_id.__repr__()}
+                               """
+        )
 
-
-# Check whether this user rated this theater before
-cursor.execute(
-    f"""SELECT 1 FROM TheaterRateTable WHERE theater_id={theater_id.__repr__()} AND user_id={user_id.__repr__()}
-                       """
-)
-
-# rate should be stored as string
-if cursor.fetchone():
-# user's rate should be updated
+        # rate should be stored as string
+        if cursor.fetchone():
+            # user's rate should be updated
             print("You have already rated this theater")
             return
-
 
         cursor.execute(
             f"""INSERT INTO TheaterRateTable VALUES (%s, %s, {rate.__repr__()})""",
@@ -94,17 +88,14 @@ if cursor.fetchone():
         )
         connection.commit()
 
-
-
-
-@staticmethod
-def theater_name_list():
-    cursor.execute("""SELECT name FROM Theater""")
-    data = cursor.fetchall()
-    theater_name = []
-    for name_tuple in data:
-        theater_name.append(name_tuple[0])
-    print(theater_name)
+    @staticmethod
+    def theater_name_list():
+        cursor.execute("""SELECT name FROM Theater""")
+        data = cursor.fetchall()
+        theater_name = []
+        for name_tuple in data:
+            theater_name.append(name_tuple[0])
+        print(theater_name)
 
 
 if __name__ == "__main__":
