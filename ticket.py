@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from connection import connection
 from sit import Sit
+import os
 
 cursor = connection.cursor()
 
@@ -28,13 +29,16 @@ class Ticket:
         user_input_sit_id = {}
         row = 0
         print("##### Empty sit ids #####")
+        empty_sit_string = ""
         for empty_sit_id in empty_theater_sits:
             row += 1
-            print(f"{row}: {empty_sit_id}")
-        allowed_empty_sit_number = list(1, range(len(empty_theater_sits) + 1))
+            empty_sit_string += f"{row}: {empty_sit_id}\n"
+        allowed_empty_sit_number = list(range(1, len(empty_theater_sits) + 1))
 
+        print(empty_sit_string)
         selected_sit = input("Enter site id that you selected: ")
         while not selected_sit.isdigit() or int(selected_sit) not in allowed_empty_sit_number:
+            print(empty_sit_string)
             selected_sit = input("Enter site id that you selected: ")
         selected_sit = int(selected_sit)
         selected_sit_id = empty_theater_sits[selected_sit - 1]
@@ -51,7 +55,7 @@ class Ticket:
         time_generator = str(datetime.now())
 
         cursor.execute(
-            f"insert into Ticket(id, user_id, schedule_id, sit_id, price, bought_time) value ('{id_generator}', '{user_id}', '{schedule_data}', '{selected_sit_id}','{price}', '{time_generator}')"
+            f"insert into Ticket(id, user_id, schedule_id, sit_id, price, bought_time) value ('{id_generator}', '{user_id}', '{schedule_id}', '{selected_sit_id}','{price}', '{time_generator}')"
         )
         Sit.change_status(selected_sit_id)
 
