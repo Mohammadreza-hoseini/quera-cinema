@@ -9,6 +9,7 @@ from wallet import Wallet, wallet_menu
 from rate_to_movies import MovieRate
 from theater import Theater
 from movie import Movie
+from comment import Comment
 
 # thread_list = []
 
@@ -20,7 +21,6 @@ def request_thread(client_socket, addr, data):
         command, user_id = data
     else:
         command = data
-    
 
     if command == "1":  # register
         register_func = Users.register
@@ -39,14 +39,13 @@ def request_thread(client_socket, addr, data):
         # convert to byte
         pickled_function = pickle.dumps(change_username_func)
         client_socket.send(pickled_function)
-    
+
     if command == "4":  # change password
         change_password_func = Users.change_password
         # convert to byte
         pickled_function = pickle.dumps(change_password_func)
         client_socket.send(pickled_function)
-        
-        
+
     if command == "5":  # rate movie
         rate_func = MovieRate.rate_to_movie
         # convert to byte
@@ -57,32 +56,43 @@ def request_thread(client_socket, addr, data):
         # convert to byte
         pickled_function = pickle.dumps(rate_func)
         client_socket.send(pickled_function)
-        
+
     if command == "7":  # movie list #TODO
         movie_list_fun = Movie.movie_list
         # convert to byte
         pickled_function = pickle.dumps(movie_list_fun)
         client_socket.send(pickled_function)
-        
+
+    if command == "8":  # add comment #TODO
+        add_comment_func = Comment.add_comment_to_movie
+        # convert to byte
+        pickled_function = pickle.dumps(add_comment_func)
+        client_socket.send(pickled_function)
+
     if command == "9":  # wallet #TODO
         wallet_menu_func = wallet_menu
         # convert to byte
         pickled_function = pickle.dumps(wallet_menu_func)
         client_socket.send(pickled_function)
-    
-    
+
     if command == "10":  # bank #TODO
         bank_menu_func = bank_menu
         # convert to byte
         pickled_function = pickle.dumps(bank_menu)
         client_socket.send(pickled_function)
-    
-    if command == "12":  # choose movie #TODO
+        
+    if command == "11":  # all comments of movie
+        all_movie_comments_func = Comment.get_all_comments_of_movie
+        # convert to byte
+        pickled_function = pickle.dumps(all_movie_comments_func)
+        client_socket.send(pickled_function)
+
+    if command == "12":  # choose movie (and reserve ticket)
         choose_movie_func = Movie.choose_movie
         # convert to byte
         pickled_function = pickle.dumps(choose_movie_func)
         client_socket.send(pickled_function)
-    
+
     # print("return request_thread")
     # return
 
