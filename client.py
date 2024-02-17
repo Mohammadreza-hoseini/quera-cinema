@@ -33,9 +33,10 @@ def second_menu():
             9. wallet
             10. bank
             11. add ticket
+            12. choose movie
             """
     command = None
-    while command not in ["3", "4", "5", "6", "7", "8", "9", "10", "11", "-1"]:
+    while command not in ["3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "-1"]:
         print(menu)
         command = input("Enter command: ")
     return command
@@ -106,9 +107,15 @@ def run_client():
                 # give function inputs based on its name
                 func_name = response_func.__name__ 
                 
-                if func_name in ["change_password", "change_user_name", "rate_to_movie", "rate_theater"]:
+                
+                if func_name == 'choose_movie':
+                    response_func()
+                
+                if func_name in ["change_password", "change_user_name", "rate_to_movie", "rate_theater", "movie_list"]:
                     
                     response_func(user_id)
+                
+                    
                     
                 # handle wallet
                 if func_name == "wallet_menu":
