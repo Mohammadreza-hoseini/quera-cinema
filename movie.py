@@ -13,7 +13,7 @@ class Movie:
 
     @staticmethod
     def movie_list():
-        get_data_from_cache = redis_client.get('movies')
+        get_data_from_cache = redis_client.get("movies")
         if get_data_from_cache is not None:
             return get_data_from_cache
         else:
@@ -37,12 +37,10 @@ class Movie:
 
     def average_rate(self) -> str:
         try:
-            cursor.execute(
-                f'SELECT average_rate FROM Movie WHERE name like "%{self.name}%"'
-            )
+            cursor.execute(f'SELECT average_rate FROM Movie WHERE name="{self.name}"')
             return cursor.fetchone()[0]
         except Exception as e:
-            return "This movie is not in the database"
+            return "Movie doesn't exist"
 
     def on_screen_count(self) -> str:
         cursor.execute(f'SELECT COUNT(*) FROM Schedule WHERE movie_id = "%{self.uuid}"')
@@ -52,7 +50,6 @@ class Movie:
         return self.name
 
 
-a = Movie("son of kgod", 18)
-
-a.create_movie()
-print(a.average_rate())
+if __name__ == "__main__":
+    a = Movie()
+    a.movie_list()

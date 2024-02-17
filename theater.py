@@ -35,7 +35,50 @@ class Theater:
         return cursor.fetchone()[0]
 
     @staticmethod
-    def update_avg_rate(theater_id: str):
+    def rate_theater(user_id: str) -> None:
+        """
+        Add user's rate for theater
+        rate can be 1, 2, 3, 4, 5
+        """
+
+        rate = input("Enter your rate: ")
+        valid_rates = ["1", "2", "3", "4", "5"]
+        while rate not in valid_rates:
+            print("Rate should be from 1 to 5")
+            rate = input("Enter your rate: ")
+
+        theater_name = input("Enter name of theater: ")
+        while theater_name == "" or theater_name is None:
+            theater_name = input("Enter name of theater: ")
+        cursor.execute(f"SELECT id FROM Theater WHERE name='{theater_name}'")
+        result = cursor.fetchone()
+        while result is None:
+            print("Theater doesn't exist")
+            theater_name = input("Enter name of theater: ")
+            while theater_name == "" or theater_name is None:
+                theater_name = input("Enter name of theater: ")
+            cursor.execute(f"SELECT id FROM Theater WHERE name='{theater_name}'")
+            result = cursor.fetchone()
+        theater_id = result[0]
+
+        # Check whether this user rated this theater before
+        cursor.execute(
+            f"""SELECT 1 FROM TheaterRateTable WHERE theater_id={theater_id.__repr__()} AND user_id={user_id.__repr__()}
+                               """
+        )
+
+        # rate should be stored as string
+        if cursor.fetchone():
+            # user's rate should be updated
+            print("You have already rated this theater")
+            return
+
+        cursor.execute(
+            f"""INSERT INTO TheaterRateTable VALUES (%s, %s, {rate.__repr__()})""",
+            (user_id, theater_id),
+        )
+        print("Your rate is added")
+
         cursor.execute(
             f"""SELECT AVG(rate) FROM TheaterRateTable WHERE theater_id={theater_id.__repr__()}"""
         )
@@ -44,36 +87,6 @@ class Theater:
             f"""UPDATE Theater SET average_rate={new_avg} WHERE id={theater_id.__repr__()}"""
         )
         connection.commit()
-
-    @staticmethod
-    def rate_theater(user_id: str, theater_name: str, rate: int) -> None:
-        """
-        Add user's rate for theater
-        rate can be 1, 2, 3, 4, 5
-        """
-        theater_id = Theater.get_theater_id(theater_name)
-
-        # Check whether this user rated this theater before
-        cursor.execute(
-            f"""SELECT 1 FROM TheaterRateTable WHERE theater_id={theater_id.__repr__()} AND user_id={user_id.__repr__()}
-                       """
-        )
-
-        # rate should be stored as string
-        if cursor.fetchone():
-            # user's rate should be updated
-            cursor.execute(
-                f"""UPDATE TheaterRateTable SET rate={str(rate).__repr__()} WHERE theater_id={theater_id.__repr__()} AND user_id={user_id.__repr__()}"""
-            )
-            print("Your rate is updated")
-        else:
-            cursor.execute(
-                f"""INSERT INTO TheaterRateTable VALUES (%s, %s, {str(rate).__repr__()})""",
-                (user_id, theater_id),
-            )
-            print("Your rate is added")
-        connection.commit()
-        Theater.update_avg_rate(theater_id)
 
     @staticmethod
     def theater_name_list():
@@ -86,12 +99,4 @@ class Theater:
 
 
 if __name__ == "__main__":
-    t1 = Theater()
-    # t1.theater_name_list()
-    # t1.rate_theater(
-    #     user_id="3075600f-c29c-11ee-9027-0242ac150202", theater_name="valiasr", rate=2
-    # )
-    # t1.rate_theater(
-    #     user_id="99a8fdac-ed21-4d1f-9639-afd6fb68ca7b", theater_name="valiasr", rate=3
-    # )
-    t1.update_avg_rate(theater_id="41ddc2d2-6613-4a53-96ba-97348496d3b7")
+    pass
