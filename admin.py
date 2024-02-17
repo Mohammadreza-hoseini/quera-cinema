@@ -34,7 +34,7 @@ class Admin:
                 "price": price,
             }
             movie_list.append(movie_data)
-        # redis_client.set('movies', str(movie_list))
+        redis_client.set('movies', str(movie_list))
 
     @staticmethod
     def insert_schedules_to_cache(movie_name: str) -> None:
@@ -59,7 +59,7 @@ class Admin:
             }
             if on_screen_time >= datetime.now():
                 available_schedules.append(schedule_data)
-        # redis_client.set('schedules', str(available_schedules))
+        redis_client.set('schedules', str(available_schedules))
 
     @staticmethod
     def register() -> None:
