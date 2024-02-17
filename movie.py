@@ -4,6 +4,7 @@ import uuid
 
 from connection import connection, redis_client
 from schedule import Schedule
+from ticket import Ticket
 
 cursor = connection.cursor()
 
@@ -32,10 +33,10 @@ class Movie:
             )
             data = cursor.fetchall()
             if len(data) == 0:
-                print("No ")
+                print("No movie for your age")
+                return 
 
             movie_list = []
-            print("#####MOVIES####")
             row = 0
             print("name, average_rate, age_limit, price")
             for movie_tuple in data:
@@ -65,7 +66,7 @@ class Movie:
         return cursor.fetchone()[0]
 
     @staticmethod
-    def choose_movie():
+    def choose_movie(user_id: str) -> None:
         movie_name = input("Enter movie name: ")
         cursor.execute(f"""SELECT 1 FROM Movie WHERE name='{movie_name}'""")
         data = cursor.fetchone()
@@ -74,7 +75,21 @@ class Movie:
             cursor.execute(f"""SELECT 1 FROM Movie WHERE name='{movie_name}'""")
             data = cursor.fetchone()
         
-        Schedule.all_available_schedules(movie_name)
+        available_schedules = Schedule.all_available_schedules(movie_name)
+        if available_schedules == -1:
+            return
+        schedule_allowed_numbers = len(available_schedules)
+        selected_schedule = input("Enter number of schedule: ")
+        allowed_numbers = list(range(1, schedule_allowed_numbers + 1))
+        while not selected_schedule.isdigit() or int(selected_schedule) not in allowed_numbers:
+            selected_schedule = input("Enter number of schedule: ")
+        selected_schedule = int(selected_schedule)
+        
+        selected_schedule_id = available_schedules[selected_schedule - 1]["id"]
+        
+        
+        Ticket.add_ticket(user_id, selected_schedule_id)
+        
         
 
     def __str__(self):
