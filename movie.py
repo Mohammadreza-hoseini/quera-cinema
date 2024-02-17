@@ -14,8 +14,9 @@ class Movie:
     @staticmethod
     def movie_list():
         get_data_from_cache = redis_client.get("movies")
+        print(get_data_from_cache.decode('utf-8'))
         if get_data_from_cache is not None:
-            return get_data_from_cache
+            return get_data_from_cache.decode('utf-8')
         else:
             cursor.execute(
                 f"""SELECT name, average_rate, age_limit, price FROM Movie ORDER BY average_rate DESC"""
