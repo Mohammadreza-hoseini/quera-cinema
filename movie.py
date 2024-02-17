@@ -1,6 +1,9 @@
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
 import uuid
 
 from connection import connection, redis_client
+from schedule import Schedule
 
 cursor = connection.cursor()
 
@@ -12,19 +15,33 @@ class Movie:
         self.age_limit = age_limit
 
     @staticmethod
-    def movie_list():
-        get_data_from_cache = redis_client.get("movies")
-        if get_data_from_cache is not None:
-            return get_data_from_cache
+    def movie_list(user_id):
+        cursor.execute(f"""SELECT birth_date FROM User WHERE id = '{user_id}'""")
+        user_birth_date = cursor.fetchone()[0]
+        user_birth_date = user_birth_date.date()
+        today = date.today()
+        user_age = today - user_birth_date
+        user_age = relativedelta(today, user_birth_date).years
+        if 1 == 2:  # never runs
+            get_data_from_cache = redis_client.get("movies")
+            if get_data_from_cache is not None:
+                return get_data_from_cache
         else:
             cursor.execute(
-                f"""SELECT name, average_rate, age_limit, price FROM Movie ORDER BY average_rate DESC"""
+                f"""SELECT name, average_rate, age_limit, price FROM Movie WHERE age_limit <= {user_age} ORDER BY average_rate DESC"""
             )
             data = cursor.fetchall()
+            if len(data) == 0:
+                print("No ")
 
             movie_list = []
+            print("#####MOVIES####")
+            row = 0
+            print("name, average_rate, age_limit, price")
             for movie_tuple in data:
                 name, average_rate, age_limit, price = movie_tuple
+                row += 1
+                print(f"{row}: {name}, {average_rate}, {age_limit}, {price}")
                 movie_data = {
                     "name": name,
                     "average_rate": average_rate,
@@ -32,28 +49,33 @@ class Movie:
                     "price": price,
                 }
                 movie_list.append(movie_data)
-            print(movie_list)
-            return movie_list
+            # return movie_list
 
-    def average_rate(self) -> str:
+    @staticmethod
+    def average_rate() -> str:
         try:
-            cursor.execute(f'SELECT average_rate FROM Movie WHERE name="{self.name}"')
+            cursor.execute(f'SELECT average_rate FROM Movie WHERE name="{name}"')
             return cursor.fetchone()[0]
         except Exception as e:
             return "Movie doesn't exist"
 
-    def on_screen_count(self) -> str:
-        cursor.execute(f'SELECT COUNT(*) FROM Schedule WHERE movie_id = "%{self.uuid}"')
+    @staticmethod
+    def on_screen_count() -> str:
+        cursor.execute(f'SELECT COUNT(*) FROM Schedule WHERE movie_id = "%{uuid}"')
         return cursor.fetchone()[0]
+
+    @staticmethod
+    def choose_movie():
+        movie_name = input("Enter movie name: ")
+        cursor.execute(f"""SELECT 1 FROM Movie WHERE name='{movie_name}'""")
+        data = cursor.fetchone()
+        while data is None:
+            movie_name = input("Enter movie name: ")
+            cursor.execute(f"""SELECT 1 FROM Movie WHERE name='{movie_name}'""")
+            data = cursor.fetchone()
+        
+        Schedule.all_available_schedules(movie_name)
+        
 
     def __str__(self):
         return self.name
-
-
-def movie_menu():
-    pass
-
-
-if __name__ == "__main__":
-    a = Movie()
-    a.movie_list()
