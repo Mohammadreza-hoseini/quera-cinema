@@ -8,6 +8,7 @@ from users import Users
 from wallet import Wallet, wallet_menu
 from rate_to_movies import MovieRate
 from theater import Theater
+from movie import Movie
 
 # thread_list = []
 
@@ -19,6 +20,7 @@ def request_thread(client_socket, addr, data):
         command, user_id = data
     else:
         command = data
+    
 
     if command == "1":  # register
         register_func = Users.register
@@ -56,6 +58,11 @@ def request_thread(client_socket, addr, data):
         pickled_function = pickle.dumps(rate_func)
         client_socket.send(pickled_function)
         
+    if command == "7":  # movie list #TODO
+        movie_list_fun = Movie.movie_list
+        # convert to byte
+        pickled_function = pickle.dumps(movie_list_fun)
+        client_socket.send(pickled_function)
         
     if command == "9":  # wallet #TODO
         wallet_menu_func = wallet_menu
@@ -63,10 +70,17 @@ def request_thread(client_socket, addr, data):
         pickled_function = pickle.dumps(wallet_menu_func)
         client_socket.send(pickled_function)
     
+    
     if command == "10":  # bank #TODO
         bank_menu_func = bank_menu
         # convert to byte
         pickled_function = pickle.dumps(bank_menu)
+        client_socket.send(pickled_function)
+    
+    if command == "12":  # choose movie #TODO
+        choose_movie_func = Movie.choose_movie
+        # convert to byte
+        pickled_function = pickle.dumps(choose_movie_func)
         client_socket.send(pickled_function)
     
     # print("return request_thread")
