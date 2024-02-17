@@ -33,11 +33,23 @@ def second_menu():
             8. add comment
             9. wallet
             10. bank
-            11. add ticket
-            12. choose movie
+            11. get all comments of movie
+            12. choose movie (and reserve ticket)
             """
     command = None
-    while command not in ["3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "-1"]:
+    while command not in [
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "-1",
+    ]:
         print(menu)
         command = input("Enter command: ")
     return command
@@ -112,9 +124,13 @@ def run_client():
                     "rate_theater",
                     "movie_list",
                     "choose_movie",
+                    "add_comment_to_movie",
                 ]:
 
                     response_func(user_id)
+
+                if func_name == "get_all_comments_of_movie":
+                    response_func()
 
                 # handle wallet
                 if func_name == "wallet_menu":
