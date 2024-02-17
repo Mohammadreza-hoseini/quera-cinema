@@ -87,10 +87,7 @@ class Movie:
 
         selected_schedule_id = available_schedules[selected_schedule - 1]["id"]
 
-
         Ticket.add_ticket(user_id, selected_schedule_id)
-
-
 
     def __str__(self):
         return self.name

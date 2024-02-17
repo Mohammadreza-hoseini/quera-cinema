@@ -1,7 +1,6 @@
 from connection import connection, redis_client
 from datetime import datetime
 
-
 cursor = connection.cursor()
 
 
@@ -31,7 +30,7 @@ class Schedule:
                 print("No available schedule for this movie")
                 return -1
 
-            #typo -> available schedules
+            # typo -> available schedules
             available_movies = []
             row = 0
             print("#####SCHEDULES####")
