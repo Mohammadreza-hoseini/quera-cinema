@@ -6,10 +6,10 @@ greenlet==3.0.3
 iniconfig==2.0.0
 mysql-connector-python==8.3.0
 packaging==23.2
-pkg_resources==0.0.0
 pluggy==1.4.0
 pytest==8.0.0
 SQLAlchemy==2.0.26
 tomli==2.0.1
 typing_extensions==4.9.0
 urllib3==2.2.0
+python-dateutil==2.8.2

@@ -1,6 +1,7 @@
 from connection import connection, redis_client
 from datetime import datetime
 
+
 cursor = connection.cursor()
 
 
@@ -13,29 +14,40 @@ class Schedule:
         """
         Returns all available schedules for a movie
         """
-        get_data_from_cache = redis_client.get('schedules')
-        print(get_data_from_cache.decode('utf-8'))
-        if get_data_from_cache is not None:
-            return get_data_from_cache.decode('utf-8')
+        if 1 == 2:  # never runs
+            get_data_from_cache = redis_client.get("schedules")
+            if get_data_from_cache is not None:
+                return get_data_from_cache
         else:
+            now = datetime.now()
             cursor.execute(
-                f"""SELECT movie_name, theater_name, on_screen_time FROM Schedule JOIN Theater ON Schedule.theater_name = Theater.name
-                           WHERE Schedule.movie_name = {movie_name.__repr__()}
+                f"""SELECT Schedule.id, movie_name, theater_name, on_screen_time FROM Schedule JOIN Theater ON Schedule.theater_name = Theater.name
+                           WHERE Schedule.movie_name = {movie_name.__repr__()} AND on_screen_time >= '{now}'
                            ORDER BY Theater.average_rate DESC
                            """
             )
             data = cursor.fetchall()
+            if len(data) == 0:
+                print("No available schedule for this movie")
+                return -1
+
+            #typo -> available schedules
             available_movies = []
+            row = 0
+            print("#####SCHEDULES####")
+            print("movie, theater, on_screen_time")
             for movie_tuple in data:
-                movie_name, theater_name, on_screen_time = movie_tuple
+                schedule_id, movie_name, theater_name, on_screen_time = movie_tuple
                 schedule_data = {
+                    "id": schedule_id,
                     "movie_name": movie_name,
                     "theater_name": theater_name,
                     "on_screen_time": on_screen_time,
                 }
-                if on_screen_time >= datetime.now():
-                    available_movies.append(schedule_data)
-            print(available_movies)
+                available_movies.append(schedule_data)
+                row += 1
+                print(f"{row}: {movie_name}, {theater_name}, {on_screen_time}")
+            return available_movies
 
 
 if __name__ == "__main__":
