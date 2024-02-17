@@ -1,7 +1,6 @@
 from connection import connection, redis_client
 from datetime import datetime
 
-
 cursor = connection.cursor()
 
 
@@ -15,8 +14,9 @@ class Schedule:
         Returns all available schedules for a movie
         """
         get_data_from_cache = redis_client.get('schedules')
+        print(get_data_from_cache.decode('utf-8'))
         if get_data_from_cache is not None:
-            return get_data_from_cache
+            return get_data_from_cache.decode('utf-8')
         else:
             cursor.execute(
                 f"""SELECT movie_name, theater_name, on_screen_time FROM Schedule JOIN Theater ON Schedule.theater_name = Theater.name
