@@ -1,6 +1,6 @@
 import socket
 import pickle
-
+import os
 
 from bankaccount import BankAccount
 from help_function import is_float
@@ -162,7 +162,10 @@ def run_client():
                 else:
                     login_status = 1
                 user_id = res1
+                # os.system('cls')
+                # print("logged in")
             res2 = application(user_id)
+            # os.system('cls')
             if res2 == "logout":
                 break
         client.close()
